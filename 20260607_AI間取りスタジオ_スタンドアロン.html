@@ -1,0 +1,5113 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/><title>AI間取りスタジオ</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>html,body,#root{height:100%}body{margin:0}</style></head>
+<body><div id="root"></div>
+<script>const {useState,useRef,useEffect,useMemo}=React;
+const THREE=window.THREE;
+const ICON_SVG={"Sofa":"<path d=\"M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3\"></path><path d=\"M2 11v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H6v-2a2 2 0 0 0-4 0Z\"></path><path d=\"M4 18v2\"></path><path d=\"M20 18v2\"></path><path d=\"M12 4v9\"></path>","BedDouble":"<path d=\"M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8\"></path><path d=\"M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4\"></path><path d=\"M12 4v6\"></path><path d=\"M2 18h20\"></path>","Baby":"<path d=\"M9 12h.01\"></path><path d=\"M15 12h.01\"></path><path d=\"M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5\"></path><path d=\"M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1\"></path>","Utensils":"<path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\"></path><path d=\"M7 2v20\"></path><path d=\"M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7\"></path>","Bath":"<path d=\"M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5\"></path><line x1=\"10\" x2=\"8\" y1=\"5\" y2=\"7\"></line><line x1=\"2\" x2=\"22\" y1=\"12\" y2=\"12\"></line><line x1=\"7\" x2=\"7\" y1=\"19\" y2=\"21\"></line><line x1=\"17\" x2=\"17\" y1=\"19\" y2=\"21\"></line>","Droplets":"<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\"></path><path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\"></path>","DoorOpen":"<path d=\"M13 4h3a2 2 0 0 1 2 2v14\"></path><path d=\"M2 20h3\"></path><path d=\"M13 20h9\"></path><path d=\"M10 12v.01\"></path><path d=\"M13 4.562v16.157a1 1 0 0 1-1.242.97L5 20V5.562a2 2 0 0 1 1.515-1.94l4-1A2 2 0 0 1 13 4.561Z\"></path>","Footprints":"<path d=\"M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z\"></path><path d=\"M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z\"></path><path d=\"M16 17h4\"></path><path d=\"M4 13h4\"></path>","Home":"<path d=\"m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"></path><polyline points=\"9 22 9 12 15 12 15 22\"></polyline>","Layers":"<path d=\"m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z\"></path><path d=\"m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65\"></path><path d=\"m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65\"></path>","LayoutGrid":"<rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\"></rect><rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\"></rect><rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\"></rect><rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\"></rect>","Ruler":"<path d=\"M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z\"></path><path d=\"m14.5 12.5 2-2\"></path><path d=\"m11.5 9.5 2-2\"></path><path d=\"m8.5 6.5 2-2\"></path><path d=\"m17.5 15.5 2-2\"></path>","Sun":"<circle cx=\"12\" cy=\"12\" r=\"4\"></circle><path d=\"M12 2v2\"></path><path d=\"M12 20v2\"></path><path d=\"m4.93 4.93 1.41 1.41\"></path><path d=\"m17.66 17.66 1.41 1.41\"></path><path d=\"M2 12h2\"></path><path d=\"M20 12h2\"></path><path d=\"m6.34 17.66-1.41 1.41\"></path><path d=\"m19.07 4.93-1.41 1.41\"></path>","AlertTriangle":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\"></path><path d=\"M12 9v4\"></path><path d=\"M12 17h.01\"></path>","CheckCircle2":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"m9 12 2 2 4-4\"></path>","Sparkles":"<path d=\"M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z\"></path><path d=\"M20 3v4\"></path><path d=\"M22 5h-4\"></path><path d=\"M4 17v2\"></path><path d=\"M5 18H3\"></path>","Loader2":"<path d=\"M21 12a9 9 0 1 1-6.219-8.56\"></path>","Maximize2":"<polyline points=\"15 3 21 3 21 9\"></polyline><polyline points=\"9 21 3 21 3 15\"></polyline><line x1=\"21\" x2=\"14\" y1=\"3\" y2=\"10\"></line><line x1=\"3\" x2=\"10\" y1=\"21\" y2=\"14\"></line>","ScrollText":"<path d=\"M15 12h-5\"></path><path d=\"M15 8h-5\"></path><path d=\"M19 17V5a2 2 0 0 0-2-2H4\"></path><path d=\"M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3\"></path>","Wand2":"<path d=\"m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72\"></path><path d=\"m14 7 3 3\"></path><path d=\"M5 6v4\"></path><path d=\"M19 14v4\"></path><path d=\"M10 2v2\"></path><path d=\"M7 8H3\"></path><path d=\"M21 16h-4\"></path><path d=\"M11 3H9\"></path>","RotateCw":"<path d=\"M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8\"></path><path d=\"M21 3v5h-5\"></path>","Trash2":"<path d=\"M3 6h18\"></path><path d=\"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6\"></path><path d=\"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\"></path><line x1=\"10\" x2=\"10\" y1=\"11\" y2=\"17\"></line><line x1=\"14\" x2=\"14\" y1=\"11\" y2=\"17\"></line>","Building2":"<path d=\"M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z\"></path><path d=\"M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2\"></path><path d=\"M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2\"></path><path d=\"M10 6h4\"></path><path d=\"M10 10h4\"></path><path d=\"M10 14h4\"></path><path d=\"M10 18h4\"></path>","Plus":"<path d=\"M5 12h14\"></path><path d=\"M12 5v14\"></path>","Minus":"<path d=\"M5 12h14\"></path>","Spline":"<circle cx=\"19\" cy=\"5\" r=\"2\"></circle><circle cx=\"5\" cy=\"19\" r=\"2\"></circle><path d=\"M5 17A12 12 0 0 1 17 5\"></path>","MousePointer2":"<path d=\"m4 4 7.07 17 2.51-7.39L21 11.07z\"></path>","Undo2":"<path d=\"M9 14 4 9l5-5\"></path><path d=\"M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11\"></path>","Palette":"<circle cx=\"13.5\" cy=\"6.5\" r=\".5\" fill=\"currentColor\"></circle><circle cx=\"17.5\" cy=\"10.5\" r=\".5\" fill=\"currentColor\"></circle><circle cx=\"8.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\"></circle><circle cx=\"6.5\" cy=\"12.5\" r=\".5\" fill=\"currentColor\"></circle><path d=\"M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z\"></path>","Package":"<path d=\"m7.5 4.27 9 5.15\"></path><path d=\"M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z\"></path><path d=\"m3.3 7 8.7 5 8.7-5\"></path><path d=\"M12 22V12\"></path>","Fence":"<path d=\"M4 3 2 5v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\"></path><path d=\"M6 8h4\"></path><path d=\"M6 18h4\"></path><path d=\"m12 3-2 2v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\"></path><path d=\"M14 8h4\"></path><path d=\"M14 18h4\"></path><path d=\"m20 3-2 2v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\"></path>","Armchair":"<path d=\"M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3\"></path><path d=\"M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H7v-2a2 2 0 0 0-4 0Z\"></path><path d=\"M5 18v2\"></path><path d=\"M19 18v2\"></path>","RotateCcw":"<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"></path><path d=\"M3 3v5h5\"></path>","ZoomIn":"<circle cx=\"11\" cy=\"11\" r=\"8\"></circle><line x1=\"21\" x2=\"16.65\" y1=\"21\" y2=\"16.65\"></line><line x1=\"11\" x2=\"11\" y1=\"8\" y2=\"14\"></line><line x1=\"8\" x2=\"14\" y1=\"11\" y2=\"11\"></line>","ZoomOut":"<circle cx=\"11\" cy=\"11\" r=\"8\"></circle><line x1=\"21\" x2=\"16.65\" y1=\"21\" y2=\"16.65\"></line><line x1=\"8\" x2=\"14\" y1=\"11\" y2=\"11\"></line>","Eye":"<path d=\"M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle>"};
+function Ic(p){var name=p.name,size=(p.size==null?18:p.size),color=(p.color||'currentColor'),rest={};for(var k in p){if(k!=='name'&&k!=='size'&&k!=='color')rest[k]=p[k];}return React.createElement('svg',Object.assign({width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:color,strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round',dangerouslySetInnerHTML:{__html:ICON_SVG[name]||''}},rest));}
+const Sofa=function(p){return Ic(Object.assign({},p,{name:'Sofa'}));};
+const BedDouble=function(p){return Ic(Object.assign({},p,{name:'BedDouble'}));};
+const Baby=function(p){return Ic(Object.assign({},p,{name:'Baby'}));};
+const Utensils=function(p){return Ic(Object.assign({},p,{name:'Utensils'}));};
+const Bath=function(p){return Ic(Object.assign({},p,{name:'Bath'}));};
+const Droplets=function(p){return Ic(Object.assign({},p,{name:'Droplets'}));};
+const DoorOpen=function(p){return Ic(Object.assign({},p,{name:'DoorOpen'}));};
+const Footprints=function(p){return Ic(Object.assign({},p,{name:'Footprints'}));};
+const Home=function(p){return Ic(Object.assign({},p,{name:'Home'}));};
+const Layers=function(p){return Ic(Object.assign({},p,{name:'Layers'}));};
+const LayoutGrid=function(p){return Ic(Object.assign({},p,{name:'LayoutGrid'}));};
+const Ruler=function(p){return Ic(Object.assign({},p,{name:'Ruler'}));};
+const Sun=function(p){return Ic(Object.assign({},p,{name:'Sun'}));};
+const AlertTriangle=function(p){return Ic(Object.assign({},p,{name:'AlertTriangle'}));};
+const CheckCircle2=function(p){return Ic(Object.assign({},p,{name:'CheckCircle2'}));};
+const Sparkles=function(p){return Ic(Object.assign({},p,{name:'Sparkles'}));};
+const Loader2=function(p){return Ic(Object.assign({},p,{name:'Loader2'}));};
+const Maximize2=function(p){return Ic(Object.assign({},p,{name:'Maximize2'}));};
+const ScrollText=function(p){return Ic(Object.assign({},p,{name:'ScrollText'}));};
+const Wand2=function(p){return Ic(Object.assign({},p,{name:'Wand2'}));};
+const RotateCw=function(p){return Ic(Object.assign({},p,{name:'RotateCw'}));};
+const Trash2=function(p){return Ic(Object.assign({},p,{name:'Trash2'}));};
+const Building2=function(p){return Ic(Object.assign({},p,{name:'Building2'}));};
+const Plus=function(p){return Ic(Object.assign({},p,{name:'Plus'}));};
+const Minus=function(p){return Ic(Object.assign({},p,{name:'Minus'}));};
+const Spline=function(p){return Ic(Object.assign({},p,{name:'Spline'}));};
+const MousePointer2=function(p){return Ic(Object.assign({},p,{name:'MousePointer2'}));};
+const Undo2=function(p){return Ic(Object.assign({},p,{name:'Undo2'}));};
+const Palette=function(p){return Ic(Object.assign({},p,{name:'Palette'}));};
+const Package=function(p){return Ic(Object.assign({},p,{name:'Package'}));};
+const Fence=function(p){return Ic(Object.assign({},p,{name:'Fence'}));};
+const Armchair=function(p){return Ic(Object.assign({},p,{name:'Armchair'}));};
+const RotateCcw=function(p){return Ic(Object.assign({},p,{name:'RotateCcw'}));};
+const ZoomIn=function(p){return Ic(Object.assign({},p,{name:'ZoomIn'}));};
+const ZoomOut=function(p){return Ic(Object.assign({},p,{name:'ZoomOut'}));};
+const Eye=function(p){return Ic(Object.assign({},p,{name:'Eye'}));};</script>
+<script>
+/* AI間取りスタジオ 2026.06 (poly-edit / 建築家6人AI / 素材・建具・視点選択 / 形状追従屋根) */
+
+const COLS = 16,
+  ROWS = 14,
+  CELL = 36;
+const MOD_M = 0.91,
+  CELL_M2 = MOD_M * MOD_M,
+  TSUBO = 3.305785,
+  TATAMI = 1.62;
+const MAX_FLOORS = 3;
+function StairsIcon({
+  size = 18,
+  color = "currentColor"
+}) {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: size,
+    height: size,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: color,
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M3 20v-3h5v-3h5v-3h5V8"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M3 20h18"
+  }));
+}
+const ROOM_TYPES = [{
+  type: "living",
+  label: "リビング",
+  icon: Sofa,
+  w: 4,
+  h: 4,
+  habitable: true
+}, {
+  type: "guest",
+  label: "客間",
+  icon: Armchair,
+  w: 3,
+  h: 3,
+  habitable: true
+}, {
+  type: "bed",
+  label: "寝室",
+  icon: BedDouble,
+  w: 3,
+  h: 4,
+  habitable: true
+}, {
+  type: "kids",
+  label: "子ども部屋",
+  icon: Baby,
+  w: 3,
+  h: 3,
+  habitable: true
+}, {
+  type: "kitchen",
+  label: "キッチン",
+  icon: Utensils,
+  w: 2,
+  h: 3,
+  habitable: false
+}, {
+  type: "bath",
+  label: "浴室",
+  icon: Bath,
+  w: 2,
+  h: 2,
+  habitable: false
+}, {
+  type: "wash",
+  label: "洗面・トイレ",
+  icon: Droplets,
+  w: 1,
+  h: 2,
+  habitable: false
+}, {
+  type: "entry",
+  label: "玄関",
+  icon: DoorOpen,
+  w: 2,
+  h: 2,
+  habitable: false
+}, {
+  type: "stairs",
+  label: "階段",
+  icon: StairsIcon,
+  w: 2,
+  h: 2,
+  habitable: false
+}, {
+  type: "hall",
+  label: "廊下",
+  icon: Footprints,
+  w: 1,
+  h: 3,
+  habitable: false
+}, {
+  type: "storage",
+  label: "物入",
+  icon: Package,
+  w: 1,
+  h: 2,
+  habitable: false
+}, {
+  type: "balcony",
+  label: "ベランダ",
+  icon: Fence,
+  w: 3,
+  h: 1,
+  habitable: false,
+  open: true
+}];
+const ROOM = Object.fromEntries(ROOM_TYPES.map(r => [r.type, r]));
+const isOpen = t => t === "balcony";
+const ROOM_COLORS = {
+  blueprint: {
+    living: "#38bdf8",
+    guest: "#e879f9",
+    bed: "#818cf8",
+    kids: "#f472b6",
+    kitchen: "#34d399",
+    bath: "#22d3ee",
+    wash: "#2dd4bf",
+    entry: "#fbbf24",
+    stairs: "#c084fc",
+    hall: "#94a3b8",
+    storage: "#a3a3c2",
+    balcony: "#5eead4"
+  },
+  cozy: {
+    living: "#fca5a5",
+    guest: "#f5d0fe",
+    bed: "#a5b4fc",
+    kids: "#f9a8d4",
+    kitchen: "#6ee7b7",
+    bath: "#7dd3fc",
+    wash: "#5eead4",
+    entry: "#fcd34d",
+    stairs: "#c4b5fd",
+    hall: "#d6d3d1",
+    storage: "#cbb89f",
+    balcony: "#bbf7d0"
+  },
+  washi: {
+    living: "#b08968",
+    guest: "#a98fa0",
+    bed: "#6b705c",
+    kids: "#a5a58d",
+    kitchen: "#7f9172",
+    bath: "#6d8b9c",
+    wash: "#8aa1a6",
+    entry: "#b5838d",
+    stairs: "#9c8aa5",
+    hall: "#b7b7a4",
+    storage: "#9c948a",
+    balcony: "#a9c0a0"
+  }
+};
+const THEMES = {
+  blueprint: {
+    key: "blueprint",
+    name: "ネオ・ブループリント",
+    tag: "BLUEPRINT",
+    font: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+    appBg: "radial-gradient(1100px 560px at 72% -12%, rgba(56,189,248,0.14), transparent), linear-gradient(160deg,#0a1628,#0d1f3c 60%,#091627)",
+    ink: "#dbeafe",
+    sub: "#7fb4e6",
+    faint: "#4b6b8a",
+    panelBg: "rgba(11,28,56,0.62)",
+    panelBd: "rgba(56,189,248,0.30)",
+    canvasBg: "#0b1c38",
+    gridA: "rgba(56,189,248,0.16)",
+    gridB: "rgba(56,189,248,0.42)",
+    accent: "#22d3ee",
+    ok: "#34d399",
+    warn: "#fb7185",
+    roomStyle: "glass",
+    buttonGrad: "linear-gradient(135deg,#22d3ee,#3b82f6)",
+    wall: "#21456b",
+    roof: "#16324f",
+    sky: "#0b1c38",
+    glassCol: "rgba(120,200,235,0.5)"
+  },
+  cozy: {
+    key: "cozy",
+    name: "コージー・ゲーム",
+    tag: "COZY",
+    font: "'Hiragino Maru Gothic ProN','Rounded Mplus 1c', system-ui, sans-serif",
+    appBg: "radial-gradient(900px 500px at 82% -6%, #ffe9d6, transparent), linear-gradient(165deg,#fff7ed,#ffedd5 60%,#fee9d2)",
+    ink: "#6b4423",
+    sub: "#a06a3c",
+    faint: "#c8a987",
+    panelBg: "rgba(255,255,255,0.80)",
+    panelBd: "rgba(214,158,108,0.45)",
+    canvasBg: "#fffaf2",
+    gridA: "rgba(199,158,112,0.28)",
+    gridB: "rgba(180,120,70,0.45)",
+    accent: "#fb7185",
+    ok: "#10b981",
+    warn: "#f43f5e",
+    roomStyle: "candy",
+    buttonGrad: "linear-gradient(135deg,#fb7185,#fbbf24)",
+    wall: "#f3d9b1",
+    roof: "#d98c5f",
+    sky: "#fff7ed",
+    glassCol: "rgba(125,211,252,0.5)"
+  },
+  washi: {
+    key: "washi",
+    name: "和モダン（畳）",
+    tag: "和 WASHI",
+    font: "'Hiragino Mincho ProN','Yu Mincho', serif",
+    appBg: "linear-gradient(160deg,#f6f2e9,#efe9db 60%,#e9e1cf)",
+    ink: "#2d2a26",
+    sub: "#6b6358",
+    faint: "#a89f8c",
+    panelBg: "rgba(252,250,244,0.86)",
+    panelBd: "rgba(120,110,90,0.30)",
+    canvasBg: "#efe7d4",
+    gridA: "rgba(120,110,86,0.22)",
+    gridB: "rgba(90,80,60,0.40)",
+    accent: "#2b4c7e",
+    ok: "#5f7a52",
+    warn: "#c1503b",
+    roomStyle: "flat",
+    buttonGrad: "linear-gradient(135deg,#2b4c7e,#3f6fa3)",
+    wall: "#cdbfa3",
+    roof: "#6b5b4a",
+    sky: "#efe7d4",
+    glassCol: "rgba(120,150,170,0.5)"
+  }
+};
+
+// CSS色（#hex / rgb() / rgba()）→[r,g,b]
+function toRGB(c) {
+  if (c[0] === "#") {
+    let h = c.slice(1);
+    if (h.length === 3) h = h.split("").map(x => x + x).join("");
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  }
+  const m = c.match(/[\d.]+/g);
+  return [+m[0], +m[1], +m[2]];
+}
+function hexA(c, a) {
+  const [r, g, b] = toRGB(c);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function shade(c, amt) {
+  const [r, g, b] = toRGB(c);
+  const f = amt < 0 ? 0 : 255,
+    p = Math.abs(amt);
+  const m = v => Math.round((f - v) * p) + v;
+  return `rgb(${m(r)},${m(g)},${m(b)})`;
+}
+function mix(h1, h2, t) {
+  const a = toRGB(h1),
+    b = toRGB(h2);
+  return `rgb(${Math.round(a[0] + (b[0] - a[0]) * t)},${Math.round(a[1] + (b[1] - a[1]) * t)},${Math.round(a[2] + (b[2] - a[2]) * t)})`;
+}
+
+/* ---- 直交ポリゴン幾何 ---- */
+function rectPoly(gx, gy, w, h) {
+  return [[gx, gy], [gx + w, gy], [gx + w, gy + h], [gx, gy + h]];
+}
+function signedArea(p) {
+  let a = 0;
+  for (let i = 0; i < p.length; i++) {
+    const [x1, y1] = p[i],
+      [x2, y2] = p[(i + 1) % p.length];
+    a += x1 * y2 - x2 * y1;
+  }
+  return a / 2;
+}
+function pinp(px, py, poly) {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i],
+      [xj, yj] = poly[j];
+    if (yi > py !== yj > py && px < (xj - xi) * (py - yi) / (yj - yi) + xi) c = !c;
+  }
+  return c;
+}
+function polyBounds(poly) {
+  const xs = poly.map(p => p[0]),
+    ys = poly.map(p => p[1]);
+  return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+}
+function polyCells(poly) {
+  const [x0, y0, x1, y1] = polyBounds(poly);
+  const cells = [];
+  for (let x = x0; x < x1; x++) for (let y = y0; y < y1; y++) if (pinp(x + 0.5, y + 0.5, poly)) cells.push([x, y]);
+  return cells;
+}
+function cleanPoly(p) {
+  const o = [];
+  for (let i = 0; i < p.length; i++) {
+    const a = p[i],
+      b = o[o.length - 1];
+    if (!b || b[0] !== a[0] || b[1] !== a[1]) o.push(a);
+  }
+  if (o.length > 1) {
+    const f = o[0],
+      l = o[o.length - 1];
+    if (f[0] === l[0] && f[1] === l[1]) o.pop();
+  }
+  return o;
+}
+function translatePoly(p, dx, dy) {
+  return p.map(([x, y]) => [x + dx, y + dy]);
+}
+function rotatePoly90(p) {
+  const [x0, y0, x1, y1] = polyBounds(p);
+  return p.map(([x, y]) => [y1 - y + x0, x - x0 + y0]);
+}
+function moveVertex(poly, i, nx, ny) {
+  const n = poly.length,
+    p = poly[(i - 1 + n) % n],
+    c = poly[i],
+    q = poly[(i + 1) % n];
+  const np = poly.map(v => v.slice());
+  np[i] = [nx, ny];
+  if (p[0] === c[0]) np[(i - 1 + n) % n] = [nx, p[1]];else if (p[1] === c[1]) np[(i - 1 + n) % n] = [p[0], ny];
+  if (q[0] === c[0]) np[(i + 1) % n] = [nx, q[1]];else if (q[1] === c[1]) np[(i + 1) % n] = [q[0], ny];
+  return np;
+}
+function moveEdge(poly, i, nx, ny) {
+  const n = poly.length,
+    a = poly[i],
+    b = poly[(i + 1) % n],
+    np = poly.map(v => v.slice());
+  if (a[1] === b[1]) {
+    np[i] = [a[0], ny];
+    np[(i + 1) % n] = [b[0], ny];
+  } else if (a[0] === b[0]) {
+    np[i] = [nx, a[1]];
+    np[(i + 1) % n] = [nx, b[1]];
+  }
+  return np;
+}
+function addNotch(poly, i) {
+  const n = poly.length,
+    A = poly[i],
+    B = poly[(i + 1) % n];
+  const horiz = A[1] === B[1];
+  const len = Math.abs(horiz ? B[0] - A[0] : B[1] - A[1]);
+  if (len < 2) return poly;
+  const dir = horiz ? Math.sign(B[0] - A[0]) : Math.sign(B[1] - A[1]);
+  const ed = horiz ? [dir, 0] : [0, dir];
+  const ccw = signedArea(poly) > 0;
+  const inN = ccw ? [-ed[1], ed[0]] : [ed[1], -ed[0]];
+  const width = 1,
+    depth = 1;
+  const off = Math.min(len - width, Math.max(1, Math.floor((len - width) / 2)));
+  const s1 = horiz ? [A[0] + dir * off, A[1]] : [A[0], A[1] + dir * off];
+  const s2 = horiz ? [s1[0] + dir * width, s1[1]] : [s1[0], s1[1] + dir * width];
+  const d1 = [s1[0] + inN[0] * depth, s1[1] + inN[1] * depth];
+  const d2 = [s2[0] + inN[0] * depth, s2[1] + inN[1] * depth];
+  return poly.slice(0, i + 1).concat([s1, d1, d2, s2], poly.slice(i + 1));
+}
+function buildOcc(list, exceptId, floor) {
+  const occ = {};
+  for (const r of list) {
+    if (r.id === exceptId) continue;
+    if (floor !== undefined && r.floor !== floor) continue;
+    for (const [x, y] of polyCells(r.poly)) occ[x + "," + y] = r.id;
+  }
+  return occ;
+}
+function roomValid(poly, rooms, exceptId, floor) {
+  for (const [x, y] of poly) if (x < 0 || y < 0 || x > COLS || y > ROWS) return false;
+  const cells = polyCells(poly);
+  if (cells.length < 1) return false;
+  const occ = buildOcc(rooms, exceptId, floor);
+  for (const [x, y] of cells) if (occ[x + "," + y] !== undefined) return false;
+  return true;
+}
+function shoelace(p) {
+  let a = 0;
+  for (let i = 0; i < p.length; i++) {
+    const [x1, y1] = p[i],
+      [x2, y2] = p[(i + 1) % p.length];
+    a += x1 * y2 - x2 * y1;
+  }
+  return a / 2;
+}
+function cellsToPoly(cells) {
+  const set = new Set(cells.map(c => c[0] + "," + c[1]));
+  const seen = new Set();
+  let best = [];
+  for (const k of set) {
+    if (seen.has(k)) continue;
+    const comp = [],
+      st = [k];
+    seen.add(k);
+    while (st.length) {
+      const c = st.pop();
+      comp.push(c);
+      const [x, y] = c.split(",").map(Number);
+      for (const nb of [x + 1 + "," + y, x - 1 + "," + y, x + "," + (y + 1), x + "," + (y - 1)]) {
+        if (set.has(nb) && !seen.has(nb)) {
+          seen.add(nb);
+          st.push(nb);
+        }
+      }
+    }
+    if (comp.length > best.length) best = comp;
+  }
+  const cs = new Set(best),
+    E = new Map();
+  for (const k of best) {
+    const [x, y] = k.split(",").map(Number);
+    if (!cs.has(x + "," + (y - 1))) E.set(x + "," + y, [x + 1, y]);
+    if (!cs.has(x + 1 + "," + y)) E.set(x + 1 + "," + y, [x + 1, y + 1]);
+    if (!cs.has(x + "," + (y + 1))) E.set(x + 1 + "," + (y + 1), [x, y + 1]);
+    if (!cs.has(x - 1 + "," + y)) E.set(x + "," + (y + 1), [x, y]);
+  }
+  if (E.size === 0) return null;
+  const used = new Set();
+  let bestLoop = null,
+    bestA = -1;
+  for (const start of E.keys()) {
+    if (used.has(start)) continue;
+    const loop = [];
+    let cur = start,
+      g = 0;
+    while (cur && !used.has(cur) && g < 100000) {
+      used.add(cur);
+      loop.push(cur.split(",").map(Number));
+      const nx = E.get(cur);
+      cur = nx ? nx[0] + "," + nx[1] : null;
+      g++;
+      if (cur === start) break;
+    }
+    if (loop.length >= 4) {
+      const a = Math.abs(shoelace(loop));
+      if (a > bestA) {
+        bestA = a;
+        bestLoop = loop;
+      }
+    }
+  }
+  if (!bestLoop) return null;
+  const o = [],
+    n = bestLoop.length;
+  for (let i = 0; i < n; i++) {
+    const p = bestLoop[(i - 1 + n) % n],
+      c = bestLoop[i],
+      q = bestLoop[(i + 1) % n];
+    const col = p[0] === c[0] && c[0] === q[0] || p[1] === c[1] && c[1] === q[1];
+    if (!col) o.push(c);
+  }
+  return o.length >= 4 ? o : null;
+}
+function adjacentRooms(a, b) {
+  const sa = new Set(polyCells(a.poly).map(c => c[0] + "," + c[1]));
+  for (const [x, y] of polyCells(b.poly)) {
+    if (sa.has(x + 1 + "," + y) || sa.has(x - 1 + "," + y) || sa.has(x + "," + (y + 1)) || sa.has(x + "," + (y - 1))) return true;
+  }
+  return false;
+}
+function mergeAny(rs, a, b, keepType) {
+  if (a.floor !== b.floor) return null;
+  if (!adjacentRooms(a, b)) return null;
+  const poly = cellsToPoly(polyCells(a.poly).concat(polyCells(b.poly)));
+  if (!poly || poly.length < 4) return null;
+  return rs.filter(r => r.id !== a.id && r.id !== b.id).concat([{
+    id: a.id,
+    type: keepType,
+    floor: a.floor,
+    poly
+  }]);
+}
+function floorCellSet(rooms, f, withOpen) {
+  const s = new Set();
+  for (const r of rooms) {
+    if (r.floor !== f) continue;
+    if (!withOpen && isOpen(r.type)) continue;
+    for (const [x, y] of polyCells(r.poly)) s.add(x + "," + y);
+  }
+  return s;
+}
+function inBounds(poly) {
+  for (const [x, y] of poly) {
+    if (x < 0 || y < 0 || x > COLS || y > ROWS) return false;
+  }
+  return polyCells(poly).length >= 1;
+}
+function bowEdge(poly, idx, bulge) {
+  const n = poly.length,
+    a = poly[idx],
+    b = poly[(idx + 1) % n];
+  const ax = a[0],
+    ay = a[1],
+    bx = b[0],
+    by = b[1],
+    ex = bx - ax,
+    ey = by - ay,
+    len = Math.hypot(ex, ey) || 1;
+  let nx = ey / len,
+    ny = -ex / len;
+  if (pinp((ax + bx) / 2 + nx * 0.25, (ay + by) / 2 + ny * 0.25, poly)) {
+    nx = -nx;
+    ny = -ny;
+  }
+  const segs = Math.max(5, Math.round(len * 2)),
+    pts = [];
+  for (let i = 1; i < segs; i++) {
+    const t = i / segs,
+      w = Math.sin(t * Math.PI) * bulge;
+    pts.push([+(ax + ex * t + nx * w).toFixed(3), +(ay + ey * t + ny * w).toFixed(3)]);
+  }
+  return [...poly.slice(0, idx + 1), ...pts, ...poly.slice(idx + 1)];
+}
+function resolveOverlap(rs, winnerCells, winnerId, floor) {
+  const win = new Set(winnerCells.map(c => c[0] + "," + c[1])),
+    out = [];
+  for (const r of rs) {
+    if (r.id === winnerId || r.floor !== floor) {
+      out.push(r);
+      continue;
+    }
+    const cells = polyCells(r.poly),
+      remain = cells.filter(c => !win.has(c[0] + "," + c[1]));
+    if (remain.length === 0) continue;
+    if (remain.length === cells.length) {
+      out.push(r);
+      continue;
+    }
+    const poly = cellsToPoly(remain);
+    out.push(poly && poly.length >= 4 ? {
+      ...r,
+      poly
+    } : r);
+  }
+  return out;
+}
+const SAMPLE = [{
+  f: 1,
+  type: "living",
+  gx: 2,
+  gy: 2,
+  w: 4,
+  h: 4
+}, {
+  f: 1,
+  type: "kitchen",
+  gx: 6,
+  gy: 2,
+  w: 4,
+  h: 2
+}, {
+  f: 1,
+  type: "stairs",
+  gx: 6,
+  gy: 4,
+  w: 2,
+  h: 2
+}, {
+  f: 1,
+  type: "bath",
+  gx: 8,
+  gy: 4,
+  w: 2,
+  h: 2
+}, {
+  f: 1,
+  type: "entry",
+  gx: 2,
+  gy: 6,
+  w: 2,
+  h: 2
+}, {
+  f: 1,
+  type: "hall",
+  gx: 4,
+  gy: 6,
+  w: 4,
+  h: 2
+}, {
+  f: 1,
+  type: "wash",
+  gx: 8,
+  gy: 6,
+  w: 2,
+  h: 2
+}, {
+  f: 2,
+  type: "bed",
+  gx: 2,
+  gy: 2,
+  w: 4,
+  h: 4
+}, {
+  f: 2,
+  type: "kids",
+  gx: 6,
+  gy: 2,
+  w: 4,
+  h: 2
+}, {
+  f: 2,
+  type: "stairs",
+  gx: 6,
+  gy: 4,
+  w: 2,
+  h: 2
+}, {
+  f: 2,
+  type: "kids",
+  gx: 8,
+  gy: 4,
+  w: 2,
+  h: 2
+}, {
+  f: 2,
+  type: "hall",
+  gx: 2,
+  gy: 6,
+  w: 4,
+  h: 2
+}, {
+  f: 2,
+  type: "wash",
+  gx: 6,
+  gy: 6,
+  w: 2,
+  h: 2
+}, {
+  f: 2,
+  type: "storage",
+  gx: 8,
+  gy: 6,
+  w: 2,
+  h: 2
+}, {
+  f: 2,
+  type: "balcony",
+  gx: 2,
+  gy: 8,
+  w: 4,
+  h: 1
+}];
+function makeSample(idRef) {
+  return SAMPLE.map(s => ({
+    id: idRef.current++,
+    type: s.type,
+    floor: s.f,
+    poly: rectPoly(s.gx, s.gy, s.w || ROOM[s.type].w, s.h || ROOM[s.type].h)
+  }));
+}
+
+/* ---- 建築家別「間取り軽微補正」＋修正理由 ---- */
+const WET = new Set(["bath", "wash", "stairs"]);
+const CORE = new Set(["stairs", "entry", "hall"]);
+function floorsOf(rs) {
+  return [...new Set(rs.map(r => r.floor))];
+}
+function unionRect(a, b) {
+  if (a.floor !== b.floor) return null;
+  const all = polyCells(a.poly).concat(polyCells(b.poly)),
+    set = new Set(all.map(c => c[0] + "," + c[1]));
+  const xs = all.map(c => c[0]),
+    ys = all.map(c => c[1]);
+  const x0 = Math.min(...xs),
+    y0 = Math.min(...ys),
+    x1 = Math.max(...xs) + 1,
+    y1 = Math.max(...ys) + 1;
+  if (set.size !== (x1 - x0) * (y1 - y0)) return null;
+  return rectPoly(x0, y0, x1 - x0, y1 - y0);
+}
+function tryMerge(rs, a, b, keepType) {
+  const poly = unionRect(a, b);
+  if (!poly) return null;
+  if (!roomValid(poly, rs.filter(r => r.id !== a.id && r.id !== b.id), null, a.floor)) return null;
+  return rs.filter(r => r.id !== a.id && r.id !== b.id).concat([{
+    id: a.id,
+    type: keepType,
+    floor: a.floor,
+    poly
+  }]);
+}
+function tryGrow(rs, room, dir) {
+  if (room.poly.length !== 4) return null;
+  const [x0, y0, x1, y1] = polyBounds(room.poly);
+  const np = dir === "x+" ? rectPoly(x0, y0, x1 - x0 + 1, y1 - y0) : dir === "x-" ? rectPoly(x0 - 1, y0, x1 - x0 + 1, y1 - y0) : dir === "y+" ? rectPoly(x0, y0, x1 - x0, y1 - y0 + 1) : rectPoly(x0, y0 - 1, x1 - x0, y1 - y0 + 1);
+  if (!roomValid(np, rs.filter(r => r.id !== room.id), null, room.floor)) return null;
+  return rs.map(r => r.id === room.id ? {
+    ...r,
+    poly: np
+  } : r);
+}
+function tryMove(rs, room, dx, dy) {
+  const np = translatePoly(room.poly, dx, dy);
+  if (!roomValid(np, rs.filter(r => r.id !== room.id), null, room.floor)) return null;
+  return rs.map(r => r.id === room.id ? {
+    ...r,
+    poly: np
+  } : r);
+}
+// 動線核(階段・玄関・廊下)を残し、思想で大胆に再構成
+function mergeAll(rs, f, pred, keepOf) {
+  let again = true,
+    n = 0;
+  while (again) {
+    again = false;
+    const list = rs.filter(r => r.floor === f && pred(r));
+    let done = false;
+    for (let i = 0; i < list.length && !done; i++) for (let j = i + 1; j < list.length && !done; j++) {
+      const m = mergeAny(rs, list[i], list[j], keepOf(list[i], list[j]));
+      if (m) {
+        rs = m;
+        n++;
+        again = true;
+        done = true;
+      }
+    }
+  }
+  return [rs, n];
+}
+function planCorbusier(rooms) {
+  let rs = rooms.slice(),
+    n = 0;
+  for (const f of floorsOf(rs)) {
+    const r = mergeAll(rs, f, x => !CORE.has(x.type) && !WET.has(x.type) && !isOpen(x.type), (a, b) => a.type === "living" || b.type === "living" ? "living" : "living");
+    rs = r[0];
+    n += r[1];
+    let liv = rs.find(x => x.floor === f && x.type === "living");
+    let g = 1;
+    while (liv && g) {
+      const nn = tryGrow(rs, liv, "x+") || tryGrow(rs, liv, "y+") || tryGrow(rs, liv, "x-") || tryGrow(rs, liv, "y-");
+      if (nn) {
+        rs = nn;
+        liv = rs.find(x => x.floor === f && x.type === "living");
+      } else g = 0;
+    }
+  }
+  return {
+    rooms: rs,
+    reasons: [`動線核(階段・玄関・廊下)を骨格として残し、公室を${n}室解体・統合して一体の「自由な平面」へ大胆に再構成。`, "1階はピロティ的に開き、水平連続窓に開かれた大きなワンルームとした（近代建築の五原則）。"]
+  };
+}
+function planMies(rooms) {
+  let rs = rooms.slice(),
+    n = 0;
+  for (const f of floorsOf(rs)) {
+    const r = mergeAll(rs, f, x => !CORE.has(x.type) && !WET.has(x.type) && !isOpen(x.type), a => a.type === "living" ? "living" : a.type);
+    rs = r[0];
+    n += r[1];
+  }
+  return {
+    rooms: rs,
+    reasons: n ? [`水回り・動線核を残し、その他${n}室を解体して用途を限定しない一室の「普遍空間」へドラスティックに再構成。`, "Less is more――間仕切りを徹底的に削ぎ落とした。"] : ["既に開放的で、これ以上の統合は不要と判断。"]
+  };
+}
+function planTange(rooms) {
+  let rs = rooms.slice(),
+    n = 0;
+  for (const f of floorsOf(rs)) {
+    let again = true;
+    while (again) {
+      again = false;
+      const pub = rs.filter(x => x.floor === f && (x.type === "living" || x.type === "guest")).sort((a, b) => polyCells(b.poly).length - polyCells(a.poly).length)[0];
+      if (!pub) break;
+      for (const x of rs.filter(x => x.floor === f && !CORE.has(x.type) && !WET.has(x.type) && !isOpen(x.type) && x.id !== pub.id)) {
+        const m = mergeAny(rs, pub, x, pub.type);
+        if (m) {
+          rs = m;
+          n++;
+          again = true;
+          break;
+        }
+      }
+    }
+  }
+  return {
+    rooms: rs,
+    reasons: [`動線を軸に残しつつ、諸室を${n}室統合して力強い「大広間」を構えた（メタボリズム）。`, "大屋根と深い庇が大空間を覆い、構造を表現する。"]
+  };
+}
+function planKahn(rooms) {
+  let rs = rooms.slice(),
+    n = 0;
+  for (const f of floorsOf(rs)) {
+    const r = mergeAll(rs, f, x => !CORE.has(x.type) && !WET.has(x.type) && x.type !== "storage" && !isOpen(x.type), a => a.type === "living" ? "living" : a.type);
+    rs = r[0];
+    n += r[1];
+  }
+  return {
+    rooms: rs,
+    reasons: n ? [`服務空間(水回り・収納・動線=servant)を残し、主室(served)を${n}室統合して幾何学的な大空間に再構成。`, "沈黙と光――明快な幾何学にこそ建築の存在理由がある。"] : ["既に served と servant が明快に分節されている。"]
+  };
+}
+function planWright(rooms) {
+  let rs = rooms.slice(),
+    n = 0;
+  for (const f of floorsOf(rs)) {
+    let again = true;
+    while (again) {
+      again = false;
+      const liv = rs.find(x => x.floor === f && x.type === "living");
+      if (!liv) break;
+      for (const x of rs.filter(x => x.floor === f && (x.type === "kitchen" || x.type === "guest" || x.type === "kids"))) {
+        const m = mergeAny(rs, liv, x, "living");
+        if (m) {
+          rs = m;
+          n++;
+          again = true;
+          break;
+        }
+      }
+    }
+    let liv = rs.find(x => x.floor === f && x.type === "living");
+    let g = 2;
+    while (liv && g > 0) {
+      const nn = tryGrow(rs, liv, "x+") || tryGrow(rs, liv, "x-");
+      if (nn) {
+        rs = nn;
+        liv = rs.find(x => x.floor === f && x.type === "living");
+      } else g = 0;
+    }
+  }
+  return {
+    rooms: rs,
+    reasons: [`居間を核に水平へ大きく開き、諸室を${n}室取り込んで大地と連続する伸びやかな構成へ大胆に再編（有機的建築）。`, "深い軒と水平線が、内と外を一つに結ぶ。"]
+  };
+}
+function planAndo(rooms) {
+  let rs = rooms.slice(),
+    removed = 0;
+  for (const f of floorsOf(rs)) {
+    const cand = rs.filter(r => r.floor === f && !CORE.has(r.type) && !WET.has(r.type) && r.type !== "living" && !isOpen(r.type));
+    if (cand.length) {
+      const ccx = COLS / 2,
+        ccy = ROWS / 2;
+      cand.sort((a, b) => {
+        const A = polyBounds(a.poly),
+          Bp = polyBounds(b.poly);
+        return Math.hypot((A[0] + A[2]) / 2 - ccx, (A[1] + A[3]) / 2 - ccy) - Math.hypot((Bp[0] + Bp[2]) / 2 - ccx, (Bp[1] + Bp[3]) / 2 - ccy);
+      });
+      rs = rs.filter(r => r.id !== cand[0].id);
+      removed++;
+    }
+  }
+  return {
+    rooms: rs,
+    reasons: removed ? [`動線核と主室を残し、各階中央の一室を解体して光と風を導く「中庭(光庭)」を穿った（光とコンクリート）。`, "打放しの箱に穿たれた空白が、移ろう光を住まいに刻む。"] : ["既に中心に余白があり、光の井戸を尊重した。"]
+  };
+}
+const PLAN_FN = {
+  corbusier: planCorbusier,
+  ando: planAndo,
+  wright: planWright,
+  mies: planMies,
+  kahn: planKahn,
+  tange: planTange
+};
+
+/* ---- 建築家別「内外装」素材・建具の選択肢（思想の範囲内） ---- */
+const DESIGN = {
+  corbusier: {
+    name: "白の純粋主義（サヴォア邸）",
+    glassCol: "rgba(150,185,205,0.6)",
+    accent: "#c0392b",
+    door: "#b23a2c",
+    floor: "#efece4",
+    walls: [{
+      id: "白い塗壁",
+      col: "#edeae2",
+      tex: "render"
+    }, {
+      id: "打放し",
+      col: "#c4c0b7",
+      tex: "concrete"
+    }, {
+      id: "原色パネル",
+      col: "#c0392b",
+      tex: "render"
+    }],
+    roofs: [{
+      id: "陸屋根",
+      col: "#dedbd2",
+      kind: "flat",
+      tex: "smooth"
+    }, {
+      id: "屋上庭園",
+      col: "#aec79a",
+      kind: "flat",
+      tex: "smooth"
+    }],
+    inters: [{
+      id: "白",
+      col: "#efece4",
+      tex: "render"
+    }, {
+      id: "原色",
+      col: "#c0392b",
+      tex: "render"
+    }],
+    glaz: [{
+      id: "水平連続窓",
+      glass: "ribbon"
+    }, {
+      id: "縦連窓",
+      glass: "strip"
+    }, {
+      id: "パンチド",
+      glass: "punched"
+    }]
+  },
+  ando: {
+    name: "打放しコンクリート（光の教会）",
+    glassCol: "rgba(40,48,58,0.5)",
+    accent: "#6f6c66",
+    door: "#54514c",
+    floor: "#c3c0b8",
+    walls: [{
+      id: "打放し(丸セパ)",
+      col: "#bdbab2",
+      tex: "concrete_ando"
+    }, {
+      id: "白塗装",
+      col: "#e7e5df",
+      tex: "render"
+    }],
+    roofs: [{
+      id: "陸屋根",
+      col: "#a9a69d",
+      kind: "flat",
+      tex: "concrete"
+    }],
+    inters: [{
+      id: "打放し(丸セパ)",
+      col: "#c2bfb7",
+      tex: "concrete_ando"
+    }],
+    glaz: [{
+      id: "光のスリット",
+      glass: "slit"
+    }, {
+      id: "帯窓",
+      glass: "band"
+    }, {
+      id: "全面ガラス",
+      glass: "full"
+    }]
+  },
+  wright: {
+    name: "有機的建築（落水荘）",
+    glassCol: "rgba(110,140,150,0.5)",
+    accent: "#c79a5b",
+    door: "#43301f",
+    floor: "#7d5a3c",
+    eaves: 0.85,
+    walls: [{
+      id: "ローマ煉瓦",
+      col: "#b06a3a",
+      tex: "brick_roman"
+    }, {
+      id: "乱石積み",
+      col: "#a59683",
+      tex: "travertine"
+    }, {
+      id: "木",
+      col: "#8a6a44",
+      tex: "wood"
+    }],
+    roofs: [{
+      id: "深軒の寄棟",
+      col: "#6b4a2c",
+      kind: "hip",
+      tex: "roof_tile"
+    }],
+    inters: [{
+      id: "木",
+      col: "#7d5a3c",
+      tex: "wood"
+    }, {
+      id: "煉瓦",
+      col: "#b06a3a",
+      tex: "brick_roman"
+    }],
+    glaz: [{
+      id: "水平帯窓",
+      glass: "band"
+    }, {
+      id: "縦連窓",
+      glass: "strip"
+    }, {
+      id: "連続窓",
+      glass: "ribbon"
+    }]
+  },
+  mies: {
+    name: "鉄とガラス（ファンズワース邸）",
+    glassCol: "rgba(170,200,220,0.45)",
+    accent: "#23272e",
+    door: "#15181d",
+    floor: "#cfd6da",
+    walls: [{
+      id: "ガラスカーテンウォール",
+      col: "#aac2d2",
+      tex: "glass"
+    }, {
+      id: "トラバーチン",
+      col: "#d6cdbb",
+      tex: "travertine"
+    }, {
+      id: "黒鋼",
+      col: "#2f343b",
+      tex: "metal"
+    }],
+    roofs: [{
+      id: "陸屋根",
+      col: "#8696a4",
+      kind: "flat",
+      tex: "smooth"
+    }],
+    inters: [{
+      id: "トラバーチン",
+      col: "#d6cdbb",
+      tex: "travertine"
+    }, {
+      id: "ガラス",
+      col: "#aac2d2",
+      tex: "glass"
+    }],
+    glaz: [{
+      id: "全面ガラス",
+      glass: "full"
+    }, {
+      id: "カーテンウォール",
+      glass: "grid"
+    }, {
+      id: "帯窓",
+      glass: "band"
+    }]
+  },
+  kahn: {
+    name: "沈黙と光（ソーク研究所）",
+    glassCol: "rgba(50,44,38,0.5)",
+    accent: "#7a5b46",
+    door: "#46321f",
+    floor: "#cfc7b5",
+    walls: [{
+      id: "煉瓦",
+      col: "#9c5b46",
+      tex: "brick"
+    }, {
+      id: "打放し(丸孔)",
+      col: "#bcb6ac",
+      tex: "concrete_ando"
+    }, {
+      id: "トラバーチン",
+      col: "#d8cdb6",
+      tex: "travertine"
+    }],
+    roofs: [{
+      id: "陸屋根",
+      col: "#a9a39a",
+      kind: "flat",
+      tex: "concrete"
+    }],
+    inters: [{
+      id: "打放し",
+      col: "#bcb6ac",
+      tex: "concrete"
+    }, {
+      id: "煉瓦",
+      col: "#9c5b46",
+      tex: "brick"
+    }],
+    glaz: [{
+      id: "幾何学パンチド",
+      glass: "punched"
+    }, {
+      id: "縦スリット",
+      glass: "strip"
+    }, {
+      id: "光の隙間",
+      glass: "slit"
+    }]
+  },
+  tange: {
+    name: "メタボリズム（香川県庁舎）",
+    glassCol: "rgba(100,130,145,0.48)",
+    accent: "#7a6a4a",
+    door: "#34281a",
+    floor: "#b9b2a6",
+    eaves: 0.95,
+    walls: [{
+      id: "木型枠コンクリート",
+      col: "#b3afa4",
+      tex: "concrete_board"
+    }, {
+      id: "木ルーバー",
+      col: "#8a6a44",
+      tex: "louver"
+    }],
+    roofs: [{
+      id: "大屋根(寄棟)",
+      col: "#565249",
+      kind: "hip",
+      tex: "roof_tile"
+    }, {
+      id: "陸屋根",
+      col: "#9a958c",
+      kind: "flat",
+      tex: "concrete"
+    }],
+    inters: [{
+      id: "打放し",
+      col: "#b3afa4",
+      tex: "concrete_board"
+    }, {
+      id: "木",
+      col: "#8a6a44",
+      tex: "wood"
+    }],
+    glaz: [{
+      id: "大開口(帯)",
+      glass: "band"
+    }, {
+      id: "縦ルーバー",
+      glass: "strip"
+    }, {
+      id: "連窓",
+      glass: "ribbon"
+    }]
+  }
+};
+const ARCHITECTS = [{
+  key: "corbusier",
+  label: "コルビュジエ"
+}, {
+  key: "ando",
+  label: "安藤忠雄"
+}, {
+  key: "wright",
+  label: "ライト"
+}, {
+  key: "mies",
+  label: "ミース"
+}, {
+  key: "kahn",
+  label: "カーン"
+}, {
+  key: "tange",
+  label: "丹下健三"
+}];
+function edgeXY(x, y, side) {
+  if (side === "N") return [[x, y], [x + 1, y]];
+  if (side === "S") return [[x, y + 1], [x + 1, y + 1]];
+  if (side === "W") return [[x, y], [x, y + 1]];
+  return [[x + 1, y], [x + 1, y + 1]];
+}
+function programOpening(type) {
+  switch (type) {
+    case "living":
+    case "guest":
+      return {
+        u0: 0.15,
+        u1: 0.85,
+        z0: 0.45,
+        z1: 1.55,
+        kind: "win"
+      };
+    case "bed":
+    case "kids":
+      return {
+        u0: 0.20,
+        u1: 0.80,
+        z0: 0.55,
+        z1: 1.5,
+        kind: "win"
+      };
+    case "kitchen":
+      return {
+        u0: 0.28,
+        u1: 0.72,
+        z0: 0.85,
+        z1: 1.45,
+        kind: "win"
+      };
+    case "bath":
+    case "wash":
+      return {
+        u0: 0.55,
+        u1: 0.82,
+        z0: 1.15,
+        z1: 1.7,
+        kind: "win"
+      };
+    case "entry":
+      return {
+        u0: 0.32,
+        u1: 0.64,
+        z0: 0.02,
+        z1: 1.65,
+        kind: "door"
+      };
+    case "hall":
+    case "stairs":
+      return {
+        u0: 0.62,
+        u1: 0.84,
+        z0: 1.05,
+        z1: 1.6,
+        kind: "win"
+      };
+    default:
+      return null;
+  }
+}
+function openingFor(type, design) {
+  if (type === "entry") return [{
+    u0: 0.32,
+    u1: 0.64,
+    z0: 0.02,
+    z1: 1.65,
+    kind: "door"
+  }];
+  if (!design) {
+    const b = programOpening(type);
+    return b ? [b] : [];
+  }
+  if (type === "storage") return [];
+  const g = design.glass;
+  if (g === "full" || g === "grid") return [];
+  if (g === "ribbon") return [{
+    u0: 0.08,
+    u1: 0.92,
+    z0: 0.8,
+    z1: 1.4,
+    kind: "win"
+  }];
+  if (g === "band") return [{
+    u0: 0.12,
+    u1: 0.88,
+    z0: 0.7,
+    z1: 1.38,
+    kind: "win"
+  }];
+  if (g === "slit") return [{
+    u0: 0.46,
+    u1: 0.54,
+    z0: 0.3,
+    z1: 1.72,
+    kind: "win"
+  }];
+  if (g === "strip") return [{
+    u0: 0.16,
+    u1: 0.28,
+    z0: 0.4,
+    z1: 1.6,
+    kind: "win"
+  }, {
+    u0: 0.44,
+    u1: 0.56,
+    z0: 0.4,
+    z1: 1.6,
+    kind: "win"
+  }, {
+    u0: 0.72,
+    u1: 0.84,
+    z0: 0.4,
+    z1: 1.6,
+    kind: "win"
+  }];
+  if (g === "punched") return [{
+    u0: 0.2,
+    u1: 0.42,
+    z0: 0.55,
+    z1: 1.25,
+    kind: "win"
+  }, {
+    u0: 0.58,
+    u1: 0.8,
+    z0: 0.55,
+    z1: 1.25,
+    kind: "win"
+  }];
+  const b = programOpening(type);
+  return b ? [b] : [];
+}
+function pushOpening(faces, ax, ay, bx, by, base, op, glassCol, doorCol) {
+  const ix0 = ax + (bx - ax) * op.u0,
+    iy0 = ay + (by - ay) * op.u0,
+    ix1 = ax + (bx - ax) * op.u1,
+    iy1 = ay + (by - ay) * op.u1;
+  faces.push({
+    pts: [[ix0, iy0, base + op.z0], [ix1, iy1, base + op.z0], [ix1, iy1, base + op.z1], [ix0, iy0, base + op.z1]],
+    fill: op.kind === "door" ? doorCol : glassCol,
+    stroke: "rgba(20,20,20,0.32)",
+    depth: ax + ay + base + 0.46,
+    kind: "win"
+  });
+}
+function fixturesFor(room, base) {
+  const [x0, y0, x1, y1] = polyBounds(room.poly),
+    w = x1 - x0,
+    h = y1 - y0,
+    z = base + 0.05,
+    out = [];
+  const slab = (ax, ay, bw, bh, col) => {
+    if (bw <= 0 || bh <= 0) return;
+    out.push({
+      pts: [[ax, ay, z], [ax + bw, ay, z], [ax + bw, ay + bh, z], [ax, ay + bh, z]],
+      fill: col,
+      depth: ax + ay + base + 0.04,
+      kind: "fix"
+    });
+  };
+  const t = room.type,
+    cx = (x0 + x1) / 2,
+    cy = (y0 + y1) / 2;
+  if (t === "living") {
+    slab(x0 + 0.3, y1 - 1.2, Math.min(2.6, w - 0.6), 0.9, "#64748b");
+    slab(x1 - 1.5, y0 + 0.3, 1.1, 0.6, "#94a3b8");
+  } else if (t === "guest") {
+    slab(cx - 0.7, cy - 0.5, 1.4, 1.0, "#b08968");
+  } else if (t === "bed") slab(x0 + 0.35, y0 + 0.35, Math.min(2, w - 0.7), Math.min(2.2, h - 0.7), "#cbd5e1");else if (t === "kids") slab(x0 + 0.35, y0 + 0.35, Math.min(1.4, w - 0.7), Math.min(1.9, h - 0.7), "#cbd5e1");else if (t === "kitchen") slab(x0 + 0.2, y0 + 0.2, w - 0.4, 0.65, "#94a3b8");else if (t === "bath") slab(x0 + 0.25, y0 + 0.25, w - 0.5, h - 0.5, "#bae6fd");else if (t === "wash") slab(x0 + 0.25, y0 + 0.2, 0.7, 0.7, "#e2e8f0");else if (t === "storage") slab(x0 + 0.2, y0 + 0.2, w - 0.4, h - 0.4, "#a8a29e");else if (t === "stairs") {
+    const n = Math.max(2, Math.round(h));
+    const sh = (h - 0.4) / n;
+    for (let s = 0; s < n; s++) slab(x0 + 0.2, y0 + 0.2 + s * sh, w - 0.4, sh * 0.78, shade("#9aa3af", -0.03 * s));
+  }
+  return out;
+}
+function critiqueOf(key, m, coverageMax) {
+  const cov = m.cov.toFixed(0),
+    gross = m.grossArea.toFixed(1),
+    light = m.lightWarn.length,
+    n = m.nRooms,
+    fl = m.usedFloors;
+  const data = {
+    corbusier: {
+      name: "ル・コルビュジエ",
+      school: "近代建築の五原則",
+      years: "1887–1965",
+      text: `住宅とは「住むための機械」である。延べ${gross}㎡・建蔽率${cov}%・${fl}層のこの構成を見るに、` + (m.cov < coverageMax ? "敷地にはまだ余白が残されている――1階をピロティで持ち上げ、大地を歩行者へ解放したまえ" : "敷地はほぼ覆い尽くされた。ならば屋上庭園で奪った地表の緑を空へ返すべきだ") + "。" + (light > 0 ? `しかし${light}つの居室が光を奪われている。水平連続窓こそ近代の権利だ` : "各居室に光が行き渡り、自由な平面と水平連続窓の理想がよく守られている") + "。"
+    },
+    ando: {
+      name: "安藤忠雄(オマージュ)",
+      school: "光とコンクリート",
+      years: "b.1941",
+      text: `コンクリートの壁に落ちる光の陰影を想像したまえ。建蔽率${cov}%、${fl}層に「間(ま)」をどう刻むかが住まいの品格を決める。` + (light > 0 ? "光を断たれた居室がある――光なき空間は沈黙だ。壁を抜き自然を導け" : "各室に自然光が射し込む。打放しの面を移ろう陽光が染めるだろう") + "。建築とは自然との対話の装置である。"
+    },
+    wright: {
+      name: "フランク・ロイド・ライト",
+      school: "有機的建築",
+      years: "1867–1959",
+      text: `建築は大地から生え出ずるもの。${n}室・${fl}層は、` + (m.cov < 45 ? "水平に伸びやかで大地との連続性をよく感じさせる" : "やや密度が高い。軒を深く水平線を強調したい") + "。" + (light > 0 ? "閉ざされた居室が内と外の流れを断っている" : "内部空間が外部へよどみなく流れている") + "。"
+    },
+    mies: {
+      name: "ミース・ファン・デル・ローエ",
+      school: "Less is more",
+      years: "1886–1969",
+      text: `Less is more――${n}室、延べ${gross}㎡。` + (n > 9 ? "間仕切りが多い。壁を減らし均質な普遍空間を目指したまえ" : "簡潔だ。鉄とガラスの簡明な秩序が静謐な品格を与える") + "。" + (light > 0 ? "だが閉ざされた居室がある。透明性なき空間に私の建築は無い" : "神はディテールに宿る――明快な架構と均質な採光が整っている") + "。"
+    },
+    kahn: {
+      name: "ルイス・カーン",
+      school: "沈黙と光 / served・servant",
+      years: "1901–1974",
+      text: `建築は測り得ぬものから始まる。${n}室・${fl}層、` + (light > 0 ? "閉ざされた居室がある――光こそ空間に存在を与える。壁に開口を穿ち、沈黙に光を導け" : "主室に光が満ち、served(主室)とservant(服務)の秩序が明快だ") + "。レンガに「何になりたいか」を問えばアーチと答える。幾何学の秩序にこそ建築の永遠がある。"
+    },
+    tange: {
+      name: "丹下健三",
+      school: "メタボリズム",
+      years: "1913–2005",
+      text: `伝統は創造の出発点である。延べ${gross}㎡・${fl}層、` + (m.cov < coverageMax ? "大屋根を深く差し掛け、力強い水平と内外の連続を構えよ" : "密度が高い。構造を露わにし力の流れを建築の表現とせよ") + "。" + (light > 0 ? "閉ざされた居室は大開口で都市へ開け" : "大空間と軸線が明快で、和とモダンが拮抗しつつ調和している") + "。"
+    }
+  };
+  return data[key];
+}
+
+/* ---- 写実素材（多層SVGパターン）---- */
+function unitTex(tex, color) {
+  const m = shade(color, 0.2),
+    d1 = shade(color, -0.1),
+    d2 = shade(color, -0.22),
+    d3 = shade(color, -0.34),
+    l1 = shade(color, 0.12),
+    l2 = shade(color, 0.22);
+  const bg = `<rect width="1" height="1" fill="${color}"/>`;
+  if (tex === "brick") {
+    let s = `<rect width="1" height="1" fill="${m}"/>`;
+    const ch = 0.25;
+    for (let r = 0; r < 4; r++) {
+      const y = r * ch,
+        off = r % 2 * 0.165;
+      for (let b = -1; b < 4; b++) {
+        const x = off + b * 0.33;
+        s += `<rect x="${(x + 0.015).toFixed(3)}" y="${(y + 0.025).toFixed(3)}" width="0.3" height="${(ch - 0.05).toFixed(3)}" rx="0.01" fill="${b % 2 ? d1 : color}"/>`;
+      }
+    }
+    return s;
+  }
+  if (tex === "brick_roman") {
+    let s = `<rect width="1" height="1" fill="${m}"/>`;
+    const ch = 0.143;
+    for (let r = 0; r < 7; r++) {
+      const y = r * ch;
+      s += `<rect x="0.01" y="${(y + 0.018).toFixed(3)}" width="0.98" height="${(ch - 0.04).toFixed(3)}" fill="${r % 2 ? d1 : color}"/>`;
+    }
+    return s;
+  }
+  if (tex === "concrete_ando") {
+    return bg + `<line x1="0" y1="0.008" x2="1" y2="0.008" stroke="${d1}" stroke-width="0.016" opacity="0.5"/><line x1="0" y1="0.5" x2="1" y2="0.5" stroke="${d1}" stroke-width="0.012" opacity="0.35"/><circle cx="0.25" cy="0.25" r="0.05" fill="${d3}"/><circle cx="0.235" cy="0.235" r="0.02" fill="${l2}"/><circle cx="0.75" cy="0.75" r="0.05" fill="${d3}"/><circle cx="0.735" cy="0.735" r="0.02" fill="${l2}"/>`;
+  }
+  if (tex === "concrete_board") {
+    return bg + `<line x1="0.5" y1="0" x2="0.5" y2="1" stroke="${d2}" stroke-width="0.02" opacity="0.5"/><line x1="0.01" y1="0" x2="0.01" y2="1" stroke="${l1}" stroke-width="0.014" opacity="0.4"/><circle cx="0.5" cy="0.5" r="0.025" fill="${d3}" opacity="0.6"/>`;
+  }
+  if (tex === "concrete") {
+    return bg + `<line x1="0" y1="0.5" x2="1" y2="0.5" stroke="${d1}" stroke-width="0.01" opacity="0.22"/><circle cx="0.3" cy="0.3" r="0.035" fill="${l1}" opacity="0.4"/><circle cx="0.7" cy="0.66" r="0.04" fill="${d1}" opacity="0.4"/>`;
+  }
+  if (tex === "render") {
+    return bg + `<line x1="0.2" y1="0" x2="0.2" y2="1" stroke="${l1}" stroke-width="0.01" opacity="0.18"/><line x1="0.72" y1="0" x2="0.72" y2="1" stroke="${d1}" stroke-width="0.008" opacity="0.14"/>`;
+  }
+  if (tex === "wood" || tex === "floor_wood") {
+    let s = bg;
+    for (let i = 1; i < 6; i++) {
+      s += `<line x1="0" y1="${(i / 6).toFixed(3)}" x2="1" y2="${(i / 6).toFixed(3)}" stroke="${i % 2 ? d2 : l1}" stroke-width="0.014" opacity="0.6"/>`;
+    }
+    s += `<line x1="0.5" y1="0" x2="0.5" y2="1" stroke="${d2}" stroke-width="0.012" opacity="0.4"/>`;
+    return s;
+  }
+  if (tex === "floor_tile") {
+    return bg + `<line x1="0.333" y1="0" x2="0.333" y2="1" stroke="${d1}" stroke-width="0.022"/><line x1="0.666" y1="0" x2="0.666" y2="1" stroke="${d1}" stroke-width="0.022"/><line x1="0" y1="0.333" x2="1" y2="0.333" stroke="${d1}" stroke-width="0.022"/><line x1="0" y1="0.666" x2="1" y2="0.666" stroke="${d1}" stroke-width="0.022"/>`;
+  }
+  if (tex === "tatami") {
+    const heri = shade(color, -0.32);
+    return bg + `<rect x="0.025" y="0.025" width="0.95" height="0.95" fill="none" stroke="${heri}" stroke-width="0.035"/><line x1="0" y1="0.5" x2="1" y2="0.5" stroke="${heri}" stroke-width="0.022"/>`;
+  }
+  if (tex === "travertine") {
+    return bg + `<line x1="0" y1="0.3" x2="1" y2="0.28" stroke="${d1}" stroke-width="0.014" opacity="0.5"/><line x1="0" y1="0.7" x2="1" y2="0.72" stroke="${d1}" stroke-width="0.011" opacity="0.4"/><circle cx="0.3" cy="0.52" r="0.022" fill="${d2}" opacity="0.4"/>`;
+  }
+  if (tex === "metal") {
+    return bg + `<line x1="0.12" y1="0" x2="0.12" y2="1" stroke="${l2}" stroke-width="0.014" opacity="0.6"/><line x1="0.5" y1="0" x2="0.5" y2="1" stroke="${d2}" stroke-width="0.012"/><line x1="0.88" y1="0" x2="0.88" y2="1" stroke="${l2}" stroke-width="0.014" opacity="0.6"/>`;
+  }
+  if (tex === "louver") {
+    let s = bg;
+    for (let i = 0; i < 6; i++) {
+      const y = i / 6;
+      s += `<line x1="0" y1="${(y + 0.05).toFixed(3)}" x2="1" y2="${(y + 0.05).toFixed(3)}" stroke="${d3}" stroke-width="0.06"/><line x1="0" y1="${(y + 0.115).toFixed(3)}" x2="1" y2="${(y + 0.115).toFixed(3)}" stroke="${l2}" stroke-width="0.022"/>`;
+    }
+    return s;
+  }
+  if (tex === "roof_tile") {
+    let s = `<rect width="1" height="1" fill="${d1}"/>`;
+    for (let i = 0; i < 4; i++) {
+      const y = i * 0.25;
+      s += `<path d="M0 ${(y + 0.25).toFixed(3)} Q0.5 ${(y + 0.05).toFixed(3)} 1 ${(y + 0.25).toFixed(3)}" fill="${color}" stroke="${d2}" stroke-width="0.02"/>`;
+    }
+    return s;
+  }
+  if (tex === "mullion") {
+    return `<rect width="1" height="1" fill="none"/><line x1="0" y1="0" x2="1" y2="0" stroke="rgba(25,30,38,0.6)" stroke-width="0.06"/><line x1="0" y1="0" x2="0" y2="1" stroke="rgba(25,30,38,0.6)" stroke-width="0.06"/><line x1="0" y1="0.5" x2="1" y2="0.5" stroke="rgba(25,30,38,0.4)" stroke-width="0.035"/><line x1="0.5" y1="0" x2="0.5" y2="1" stroke="rgba(25,30,38,0.4)" stroke-width="0.035"/>`;
+  }
+  return bg;
+}
+
+/* ---- 構造（スパン略算による柱グリッド）---- */
+const STRUCT = {
+  wood: {
+    key: "wood",
+    label: "木造",
+    span: 4,
+    post: 0.18,
+    postCol: "#9a7b50",
+    col: "105角",
+    beam: "150×300",
+    note: "在来軸組｜無柱スパン目安≦約3.6m"
+  },
+  steel: {
+    key: "steel",
+    label: "鉄骨造",
+    span: 7,
+    post: 0.26,
+    postCol: "#5b6168",
+    col: "□-200",
+    beam: "H-300",
+    note: "ラーメン｜無柱スパン目安≦約6.4m"
+  },
+  rc: {
+    key: "rc",
+    label: "RC造",
+    span: 6,
+    post: 0.5,
+    postCol: "#aaa69d",
+    col: "600角",
+    beam: "500×700",
+    note: "ラーメン｜無柱スパン目安≦約5.5m"
+  }
+};
+function columnsFor(rooms, floor, structure) {
+  const st = STRUCT[structure] || STRUCT.wood,
+    g = st.span,
+    cells = floorCellSet(rooms, floor, false);
+  if (cells.size === 0) return [];
+  let x0 = 1e9,
+    y0 = 1e9,
+    x1 = -1e9,
+    y1 = -1e9;
+  for (const k of cells) {
+    const [x, y] = k.split(",").map(Number);
+    x0 = Math.min(x0, x);
+    y0 = Math.min(y0, y);
+    x1 = Math.max(x1, x + 1);
+    y1 = Math.max(y1, y + 1);
+  }
+  const has = (x, y) => cells.has(x + "," + y);
+  const nAround = (vx, vy) => (has(vx - 1, vy - 1) ? 1 : 0) + (has(vx, vy - 1) ? 1 : 0) + (has(vx - 1, vy) ? 1 : 0) + (has(vx, vy) ? 1 : 0);
+  const pts = [],
+    seen = new Set(),
+    add = (vx, vy) => {
+      const n = nAround(vx, vy);
+      if (n === 0) return;
+      const k = vx + "," + vy;
+      if (seen.has(k)) return;
+      seen.add(k);
+      pts.push([vx, vy]);
+    };
+  for (let vx = x0; vx <= x1; vx += g) for (let vy = y0; vy <= y1; vy += g) add(vx, vy);
+  for (let vx = x0; vx <= x1; vx++) for (let vy = y0; vy <= y1; vy++) {
+    const n = nAround(vx, vy);
+    if (n === 1 || n === 3) add(vx, vy);
+  }
+  return pts;
+}
+
+/* ---- 建具：連窓の用途別パラメータ ---- */
+function winParams(rt) {
+  switch (rt) {
+    case "living":
+    case "guest":
+      return {
+        z0: 0.45,
+        z1: 1.9,
+        full: true
+      };
+    case "bed":
+    case "kids":
+      return {
+        z0: 0.55,
+        z1: 1.7,
+        full: true
+      };
+    case "kitchen":
+      return {
+        z0: 0.95,
+        z1: 1.7,
+        full: true
+      };
+    case "bath":
+    case "wash":
+      return {
+        z0: 1.2,
+        z1: 1.75,
+        small: true,
+        frost: true
+      };
+    case "hall":
+    case "stairs":
+      return {
+        z0: 1.05,
+        z1: 1.6,
+        small: true
+      };
+    case "entry":
+      return {
+        z0: 0.02,
+        z1: 1.72,
+        door: true
+      };
+    default:
+      return null;
+  }
+}
+const SIDES = [{
+  s: "N",
+  ax: "x",
+  pt: (m1, m2, fx) => [[m1, fx], [m2, fx]],
+  nb: (x, y) => [x, y - 1]
+}, {
+  s: "S",
+  ax: "x",
+  pt: (m1, m2, fx) => [[m1, fx + 1], [m2, fx + 1]],
+  nb: (x, y) => [x, y + 1]
+}, {
+  s: "W",
+  ax: "y",
+  pt: (m1, m2, fx) => [[fx, m1], [fx, m2]],
+  nb: (x, y) => [x - 1, y]
+}, {
+  s: "E",
+  ax: "y",
+  pt: (m1, m2, fx) => [[fx + 1, m1], [fx + 1, m2]],
+  nb: (x, y) => [x + 1, y]
+}];
+
+/* ---- 建築家の嗜好に応じた立体家具（レイアウト選択 furnVariant）---- */
+function furniture(room, base, design) {
+  const out = [],
+    [x0, y0, x1, y1] = polyBounds(room.poly),
+    w = x1 - x0,
+    h = y1 - y0,
+    cx = (x0 + x1) / 2,
+    cy = (y0 + y1) / 2,
+    key = design ? design.key : null,
+    V = room.furnVariant || 0;
+  const wood = key ? {
+    wright: "#6e4e30",
+    kahn: "#6e5038",
+    tange: "#6a4e30",
+    mies: "#26292f",
+    corbusier: "#e3dfd6",
+    ando: "#8c877e"
+  }[key] || "#7a5a3a" : "#8a6f50";
+  const uph = key ? {
+    mies: "#2a2d33",
+    corbusier: "#c0392b",
+    wright: "#7a5a3a",
+    ando: "#9a948a",
+    kahn: "#7a5e44",
+    tange: "#6f5e44"
+  }[key] || "#5b6470" : "#6b7280";
+  const B = (x, y, bw, bd, z0, z1, col) => {
+    if (bw <= 0.05 || bd <= 0.05) return;
+    out.push({
+      pts: [[x, y, z1], [x + bw, y, z1], [x + bw, y + bd, z1], [x, y + bd, z1]],
+      fill: shade(col, 0.14),
+      depth: x + y + z1 + 0.06,
+      kind: "fix"
+    });
+    out.push({
+      pts: [[x, y + bd, z0], [x + bw, y + bd, z0], [x + bw, y + bd, z1], [x, y + bd, z1]],
+      fill: shade(col, -0.24),
+      depth: x + y + bd + z1,
+      kind: "fix"
+    });
+    out.push({
+      pts: [[x + bw, y, z0], [x + bw, y + bd, z0], [x + bw, y + bd, z1], [x + bw, y, z1]],
+      fill: shade(col, -0.36),
+      depth: x + bw + y + z1,
+      kind: "fix"
+    });
+  };
+  const chair = (x, y, col) => {
+    B(x, y, 0.42, 0.42, base, base + 0.44, col);
+    B(x, y, 0.42, 0.08, base + 0.44, base + 0.86, col);
+  };
+  const desk = (x, y, dw, col) => {
+    B(x, y, dw, 0.6, base, base + 0.72, col);
+    B(x + 0.05, y - 0.45, 0.42, 0.42, base, base + 0.44, shade(col, -0.05));
+  };
+  const t = room.type;
+  if (t === "living") {
+    if (V === 1) {
+      const tw = Math.min(1.8, w - 1.4);
+      B(cx - tw / 2, cy - 0.45, tw, 0.9, base, base + 0.72, wood);
+      chair(cx - tw / 2 - 0.5, cy - 0.2, uph);
+      chair(cx + tw / 2 + 0.08, cy - 0.2, uph);
+      chair(cx - 0.6, cy - 1.0, uph);
+      chair(cx - 0.6, cy + 0.7, uph);
+    } else if (V === 2) {
+      desk(x0 + 0.5, y0 + 0.9, Math.min(1.6, w - 0.8), wood);
+      B(x1 - 0.9, y0 + 0.4, 0.6, h - 0.8, base, base + 1.7, shade(wood, 0.04));
+      B(x0 + 0.4, y1 - 0.95, Math.min(1.6, w - 1.2), 0.8, base, base + 0.42, uph);
+    } else {
+      const sw = Math.min(2.8, w - 0.8);
+      B(x0 + 0.4, y1 - 1.0, sw, 0.85, base, base + 0.4, uph);
+      B(x0 + 0.4, y1 - 1.05, sw, 0.2, base, base + 0.78, uph);
+      B(cx - 0.6, cy - 0.2, 1.2, 0.7, base, base + 0.3, wood);
+      B(x1 - 1.3, y0 + 0.4, 1.0, 0.5, base, base + 0.62, shade(wood, 0.04));
+    }
+  } else if (t === "guest") {
+    if (V === 1) {
+      const sw = Math.min(2.2, w - 0.8);
+      B(x0 + 0.4, y1 - 0.95, sw, 0.8, base, base + 0.42, uph);
+      chair(x1 - 0.9, y0 + 0.5, uph);
+      chair(x1 - 0.9, y0 + 1.1, uph);
+      B(cx - 0.5, cy - 0.2, 1.0, 0.6, base, base + 0.3, wood);
+    } else if (V === 2) {
+      desk(x0 + 0.5, y0 + 0.9, Math.min(1.5, w - 0.8), wood);
+      B(x1 - 0.9, y0 + 0.4, 0.6, h - 0.8, base, base + 1.6, shade(wood, 0.04));
+    } else {
+      B(cx - 0.7, cy - 0.5, 1.4, 1.0, base, base + 0.26, wood);
+      B(cx - 1.35, cy - 0.5, 0.5, 1.0, base, base + 0.18, uph);
+      B(cx + 0.85, cy - 0.5, 0.5, 1.0, base, base + 0.18, uph);
+    }
+  } else if (t === "bed") {
+    if (V === 1) {
+      B(x0 + 0.35, y0 + 0.5, Math.min(1.0, w / 2 - 0.4), Math.min(2.0, h - 0.8), base, base + 0.4, "#e7edf2");
+      B(cx + 0.1, y0 + 0.5, Math.min(1.0, w / 2 - 0.4), Math.min(2.0, h - 0.8), base, base + 0.4, "#e7edf2");
+    } else if (V === 2) {
+      B(x0 + 0.35, y0 + 0.5, Math.min(1.6, w - 1.4), Math.min(2.0, h - 0.8), base, base + 0.4, "#e7edf2");
+      desk(x1 - 1.3, y1 - 0.9, 1.0, wood);
+    } else {
+      const bw = Math.min(2.0, w - 0.7),
+        bd = Math.min(2.2, h - 0.9);
+      B(x0 + 0.4, y0 + 0.6, bw, bd, base, base + 0.4, "#e7edf2");
+      B(x0 + 0.4, y0 + 0.42, bw, 0.18, base, base + 0.72, wood);
+      B(x0 + 0.6, y0 + 0.66, bw - 0.4, 0.5, base + 0.4, base + 0.56, "#f4f7fa");
+      B(x1 - 0.85, y0 + 0.4, 0.6, 0.6, base, base + 0.46, wood);
+    }
+  } else if (t === "kids") {
+    if (V === 1) {
+      B(x0 + 0.4, y0 + 0.5, Math.min(1.4, w - 0.7), Math.min(1.6, h - 0.9), base, base + 0.85, "#dbe6ef");
+      B(x1 - 1.2, y1 - 0.9, 0.9, 0.5, base, base + 0.62, wood);
+    } else if (V === 2) {
+      B(x0 + 0.4, y0 + 0.5, Math.min(0.95, w - 0.7), Math.min(1.9, h - 0.8), base, base + 1.05, "#dbe6ef");
+      B(x0 + 0.45, y0 + 0.55, Math.min(0.85, w - 0.8), Math.min(1.8, h - 0.9), base + 0.55, base + 0.58, "#eef4fa");
+      B(x1 - 1.15, y1 - 0.9, 0.9, 0.5, base, base + 0.6, wood);
+    } else {
+      const bw = Math.min(1.5, w - 0.7);
+      B(x0 + 0.4, y0 + 0.5, bw, Math.min(1.8, h - 0.8), base, base + 0.38, "#dbe6ef");
+      desk(x1 - 1.25, y1 - 0.55, 0.9, wood);
+    }
+  } else if (t === "kitchen") {
+    if (V === 1) {
+      B(x0 + 0.25, y0 + 0.25, w - 0.5, 0.62, base, base + 0.85, wood);
+      B(cx - 0.7, cy - 0.35, 1.4, 0.7, base, base + 0.85, shade(wood, -0.04));
+      B(cx - 0.4, cy - 0.2, 0.8, 0.4, base + 0.85, base + 0.9, "#33383e");
+    } else if (V === 2) {
+      B(x0 + 0.25, y0 + 0.25, w - 0.5, 0.6, base, base + 0.85, wood);
+      B(x0 + 0.25, y0 + 0.25, 0.6, h - 0.5, base, base + 0.85, wood);
+      B(x0 + 0.55, y0 + 0.32, 0.7, 0.42, base + 0.85, base + 0.9, "#33383e");
+    } else {
+      B(x0 + 0.25, y0 + 0.25, w - 0.5, 0.62, base, base + 0.85, wood);
+      B(x0 + 0.55, y0 + 0.32, 0.7, 0.45, base + 0.85, base + 0.9, "#33383e");
+      B(x0 + 0.25, y1 - 0.55, w - 0.5, 0.4, base + 1.45, base + 1.95, shade(wood, 0.05));
+    }
+  } else if (t === "bath") {
+    if (V === 1) {
+      B(x0 + 0.35, y0 + 0.35, Math.min(1.2, w - 0.8), Math.min(0.9, h - 0.5), base, base + 0.5, "#eef4f8");
+      B(x1 - 0.7, y0 + 0.35, 0.5, h - 0.7, base, base + 1.7, "#bcd6e6");
+    } else {
+      B(x0 + 0.35, y0 + 0.35, Math.min(1.8, w - 0.5), Math.min(0.95, h - 0.45), base, base + 0.5, "#eef4f8");
+      B(x0 + 0.52, y0 + 0.52, Math.min(1.46, w - 0.84), Math.min(0.61, h - 0.79), base + 0.5, base + 0.53, "#cfe3ef");
+    }
+  } else if (t === "wash") {
+    B(x0 + 0.3, y0 + 0.3, 0.62, 0.5, base, base + 0.42, "#f3f6f8");
+    B(x0 + 0.3, y0 + 0.22, 0.62, 0.16, base, base + 0.72, "#eef2f5");
+    B(x1 - 0.95, y0 + 0.3, 0.65, 0.5, base, base + 0.78, wood);
+    if (V >= 1) B(x1 - 0.95, y1 - 0.7, 0.65, 0.45, base, base + 1.5, shade(wood, 0.04));
+  } else if (t === "entry") {
+    B(x0 + 0.25, y0 + 0.25, 0.55, Math.min(1.6, h - 0.5), base, base + 1.35, wood);
+    B(x1 - 1.35, y1 - 0.75, 1.05, 0.45, base, base + 0.42, wood);
+  } else if (t === "stairs") {
+    const n = Math.max(3, Math.round(h));
+    const sh = (h - 0.4) / n;
+    for (let s = 0; s < n; s++) B(x0 + 0.25, y0 + 0.2 + s * sh, w - 0.5, sh * 0.9, base, base + 0.15 + s * 0.22, shade(wood, 0.02));
+  } else if (t === "storage") {
+    B(x0 + 0.25, y0 + 0.25, w - 0.5, 0.35, base, base + 1.6, wood);
+  }
+  return out;
+}
+function floorTexOf(type, theme) {
+  if (["bath", "wash", "kitchen", "entry"].includes(type)) return "floor_tile";
+  if (theme.key === "washi" && ["guest", "living", "bed", "kids"].includes(type)) return "tatami";
+  return "floor_wood";
+}
+function floorColOf(tex, design) {
+  if (tex === "floor_tile") return "#d9dcdf";
+  if (tex === "tatami") return "#c7cd92";
+  return design ? mix("#a8794b", design.floor, 0.28) : "#a8794b";
+}
+function roofConnComp(cells) {
+  const seen = new Set(),
+    out = [];
+  for (const k of cells) {
+    if (seen.has(k)) continue;
+    const comp = [],
+      st = [k];
+    seen.add(k);
+    while (st.length) {
+      const c = st.pop();
+      comp.push(c);
+      const [x, y] = c.split(",").map(Number);
+      for (const nb of [x + 1 + "," + y, x - 1 + "," + y, x + "," + (y + 1), x + "," + (y - 1)]) {
+        if (cells.has(nb) && !seen.has(nb)) {
+          seen.add(nb);
+          st.push(nb);
+        }
+      }
+    }
+    out.push(comp);
+  }
+  return out;
+}
+function rectHipRoof(faces, cells, top, pitch, col, tex) {
+  let x0 = 1e9,
+    y0 = 1e9,
+    x1 = -1e9,
+    y1 = -1e9;
+  for (const k of cells) {
+    const a = k.split(",").map(Number);
+    if (a[0] < x0) x0 = a[0];
+    if (a[1] < y0) y0 = a[1];
+    if (a[0] + 1 > x1) x1 = a[0] + 1;
+    if (a[1] + 1 > y1) y1 = a[1] + 1;
+  }
+  const OH = 0.55,
+    FH = 0.28,
+    ex0 = x0 - OH,
+    ey0 = y0 - OH,
+    ex1 = x1 + OH,
+    ey1 = y1 + OH;
+  const eaveZ = top - OH * pitch,
+    W = ex1 - ex0,
+    D = ey1 - ey0,
+    inset = Math.min(W, D) / 2,
+    r = eaveZ + inset * pitch,
+    e = eaveZ,
+    cx = (ex0 + ex1) / 2,
+    cy = (ey0 + ey1) / 2,
+    dep = cx + cy + r;
+  const F = pts => faces.push({
+    pts,
+    fill: col,
+    tex,
+    depth: dep,
+    kind: "roof"
+  });
+  if (Math.abs(W - D) < 1e-6) {
+    const ap = [cx, cy, r];
+    F([[ex0, ey0, e], [ex1, ey0, e], ap]);
+    F([[ex1, ey0, e], [ex1, ey1, e], ap]);
+    F([[ex1, ey1, e], [ex0, ey1, e], ap]);
+    F([[ex0, ey1, e], [ex0, ey0, e], ap]);
+  } else if (W > D) {
+    const rs = [ex0 + inset, cy, r],
+      re = [ex1 - inset, cy, r];
+    F([[ex0, ey0, e], [ex1, ey0, e], re, rs]);
+    F([[ex1, ey1, e], [ex0, ey1, e], rs, re]);
+    F([[ex0, ey1, e], [ex0, ey0, e], rs]);
+    F([[ex1, ey0, e], [ex1, ey1, e], re]);
+  } else {
+    const rs = [cx, ey0 + inset, r],
+      re = [cx, ey1 - inset, r];
+    F([[ex1, ey0, e], [ex1, ey1, e], re, rs]);
+    F([[ex0, ey1, e], [ex0, ey0, e], rs, re]);
+    F([[ex0, ey0, e], [ex1, ey0, e], rs]);
+    F([[ex1, ey1, e], [ex0, ey1, e], re]);
+  }
+  const edges = [[ex0, ey0, ex1, ey0], [ex1, ey0, ex1, ey1], [ex1, ey1, ex0, ey1], [ex0, ey1, ex0, ey0]];
+  for (const [ax, ay, bx, by] of edges) {
+    faces.push({
+      pts: [[ax, ay, e], [bx, by, e], [bx, by, e - FH], [ax, ay, e - FH]],
+      fill: shade(col, -0.14),
+      tex: "smooth",
+      depth: ax + ay + e + 0.7,
+      kind: "fascia"
+    });
+  }
+}
+function flatRoofRegion(faces, exposed, top, col, tex) {
+  const isC = (x, y) => exposed.has(x + "," + y),
+    ph = top + 0.22;
+  for (const k of exposed) {
+    const [x, y] = k.split(",").map(Number);
+    faces.push({
+      pts: [[x, y, top], [x + 1, y, top], [x + 1, y + 1, top], [x, y + 1, top]],
+      fill: shade(col, 0.06),
+      tex,
+      depth: x + y + top + 0.5,
+      kind: "roof"
+    });
+    const nb = [[x, y - 1, [[x, y], [x + 1, y]]], [x, y + 1, [[x, y + 1], [x + 1, y + 1]]], [x - 1, y, [[x, y], [x, y + 1]]], [x + 1, y, [[x + 1, y], [x + 1, y + 1]]]];
+    for (const [nx, ny, seg] of nb) {
+      if (isC(nx, ny)) continue;
+      const [[ax, ay], [bx, by]] = seg;
+      faces.push({
+        pts: [[ax, ay, top], [bx, by, top], [bx, by, ph], [ax, ay, ph]],
+        fill: shade(col, 0.14),
+        tex: "smooth",
+        depth: ax + ay + ph + 0.1,
+        kind: "roof"
+      });
+    }
+  }
+}
+function buildRoof(faces, rooms, floorCount, roofKind, col, tex) {
+  const H = 2,
+    PITCH = 0.42;
+  for (let f = 1; f <= floorCount; f++) {
+    const below = floorCellSet(rooms, f, false);
+    if (below.size === 0) continue;
+    const above = floorCellSet(rooms, f + 1, false);
+    const exposed = new Set([...below].filter(k => !above.has(k)));
+    if (exposed.size === 0) continue;
+    const top = (f - 1) * H + H;
+    if (roofKind === "flat") {
+      flatRoofRegion(faces, exposed, top, col, tex);
+      continue;
+    }
+    for (const comp of roofConnComp(exposed)) {
+      let x0 = 1e9,
+        y0 = 1e9,
+        x1 = -1e9,
+        y1 = -1e9;
+      for (const k of comp) {
+        const p = k.split(",").map(Number);
+        if (p[0] < x0) x0 = p[0];
+        if (p[1] < y0) y0 = p[1];
+        if (p[0] + 1 > x1) x1 = p[0] + 1;
+        if (p[1] + 1 > y1) y1 = p[1] + 1;
+      }
+      const fillR = comp.length / ((x1 - x0) * (y1 - y0));
+      if (comp.length >= 3 && fillR >= 0.62) rectHipRoof(faces, new Set(comp), top, PITCH, col, tex);else flatRoofRegion(faces, new Set(comp), top, col, tex);
+    }
+  }
+}
+function segKey(seg) {
+  const a = seg[0],
+    b = seg[1],
+    A = a[0] + "," + a[1],
+    B = b[0] + "," + b[1];
+  return A < B ? A + "|" + B : B + "|" + A;
+}
+function buildScene(rooms, floorCount, mode, colors, theme, design, structure) {
+  const H = 2,
+    faces = [];
+  const isExt = mode === "ext";
+  const wallBase = design ? design.wall : theme.wall,
+    wallTex = design ? design.wallTex : "smooth";
+  const glass = design ? design.glass : null,
+    glassCol = design ? design.glassCol : theme.glassCol,
+    doorCol = design ? design.door : "#5b4636",
+    frame = design ? design.accent : "#3a3a3a";
+  const wantGlassWall = glass === "full" || glass === "grid";
+  const floorList = isExt ? Array.from({
+    length: floorCount
+  }, (_, i) => i + 1) : [parseInt(mode.slice(1), 10)];
+  for (const f of floorList) {
+    const rf = rooms.filter(r => r.floor === f);
+    if (rf.length === 0) continue;
+    const bldg = rf.filter(r => !isOpen(r.type)),
+      balc = rf.filter(r => isOpen(r.type));
+    const occ = {},
+      roomOf = {},
+      bocc = {};
+    bldg.forEach(r => {
+      for (const [x, y] of polyCells(r.poly)) {
+        const k = x + "," + y;
+        occ[k] = true;
+        roomOf[k] = r;
+      }
+    });
+    balc.forEach(r => {
+      for (const [x, y] of polyCells(r.poly)) bocc[x + "," + y] = r;
+    });
+    const base = (f - 1) * H;
+    // 内壁の建具：部屋ペアごとに1箇所開口
+    const pbp = {};
+    for (const k in occ) {
+      const [x, y] = k.split(",").map(Number),
+        r = roomOf[k];
+      for (const side of ["N", "S", "E", "W"]) {
+        const nb = side === "N" ? [x, y - 1] : side === "S" ? [x, y + 1] : side === "E" ? [x + 1, y] : [x - 1, y];
+        const nr = roomOf[nb[0] + "," + nb[1]];
+        if (nr && nr !== r) {
+          const sk = segKey(edgeXY(x, y, side)),
+            pk = Math.min(r.id, nr.id) + "-" + Math.max(r.id, nr.id);
+          (pbp[pk] = pbp[pk] || []).push(sk);
+        }
+      }
+    }
+    const doorSet = new Set();
+    for (const pk in pbp) {
+      const arr = [...new Set(pbp[pk])].sort();
+      doorSet.add(arr[Math.floor(arr.length / 2)]);
+    }
+    if (!isExt) {
+      bldg.forEach(r => {
+        const ftex = floorTexOf(r.type, theme),
+          fcol = floorColOf(ftex, design);
+        for (const [x, y] of polyCells(r.poly)) faces.push({
+          pts: [[x, y, base], [x + 1, y, base], [x + 1, y + 1, base], [x, y + 1, base]],
+          fill: fcol,
+          tex: ftex,
+          depth: x + y + base - 0.2,
+          kind: "floor"
+        });
+        furniture(r, base, design).forEach(fx => faces.push(fx));
+      });
+      balc.forEach(r => {
+        const col = colors[r.type];
+        for (const [x, y] of polyCells(r.poly)) faces.push({
+          pts: [[x, y, base], [x + 1, y, base], [x + 1, y + 1, base], [x, y + 1, base]],
+          fill: shade(col, 0.12),
+          tex: "floor_tile",
+          depth: x + y + base - 0.2,
+          kind: "floor"
+        });
+      });
+      const cols = columnsFor(rooms, f, structure || "wood"),
+        st = STRUCT[structure] || STRUCT.wood,
+        hw = st.post / 2,
+        pc = st.postCol;
+      for (const [vx, vy] of cols) {
+        faces.push({
+          pts: [[vx - hw, vy - hw, base + H], [vx + hw, vy - hw, base + H], [vx + hw, vy + hw, base + H], [vx - hw, vy + hw, base + H]],
+          fill: shade(pc, 0.12),
+          depth: vx + vy + base + H + 0.4,
+          kind: "col"
+        });
+        faces.push({
+          pts: [[vx - hw, vy + hw, base], [vx + hw, vy + hw, base], [vx + hw, vy + hw, base + H], [vx - hw, vy + hw, base + H]],
+          fill: shade(pc, -0.24),
+          depth: vx + vy + hw + base + H,
+          kind: "col"
+        });
+        faces.push({
+          pts: [[vx + hw, vy - hw, base], [vx + hw, vy + hw, base], [vx + hw, vy + hw, base + H], [vx + hw, vy - hw, base + H]],
+          fill: shade(pc, -0.36),
+          depth: vx + hw + vy + base + H,
+          kind: "col"
+        });
+      }
+    }
+    // 壁（外壁・内壁）：開口は別ループ
+    for (const k in occ) {
+      const [x, y] = k.split(",").map(Number),
+        r = roomOf[k];
+      for (const side of ["N", "S", "E", "W"]) {
+        const nb = side === "N" ? [x, y - 1] : side === "S" ? [x, y + 1] : side === "E" ? [x + 1, y] : [x - 1, y],
+          nk = nb[0] + "," + nb[1];
+        const inB = occ[nk],
+          nr = roomOf[nk],
+          exterior = !inB,
+          party = inB && nr !== r;
+        if (isExt) {
+          if (!exterior) continue;
+        } else {
+          if (!exterior && !party) continue;
+        }
+        const seg = edgeXY(x, y, side),
+          [[ax, ay], [bx, by]] = seg,
+          lit = side === "E" || side === "S";
+        if (party) {
+          if (doorSet.has(segKey(seg))) continue;
+          const top = base + H * 0.62;
+          const icol = design ? shade(design.interCol, lit ? -0.2 : -0.05) : shade(colors[r.type], lit ? -0.30 : -0.16);
+          faces.push({
+            pts: [[ax, ay, base], [bx, by, base], [bx, by, top], [ax, ay, top]],
+            fill: icol,
+            tex: design ? design.interTex : "smooth",
+            depth: x + y + base + 0.4,
+            kind: "int"
+          });
+          continue;
+        }
+        const top = base + H;
+        let fill, stroke, tx;
+        if (glass === "full") {
+          fill = glassCol;
+          stroke = design.accent;
+          tx = "glass";
+        } else if (glass === "grid") {
+          fill = glassCol;
+          stroke = design.accent;
+          tx = "gridglass";
+        } else {
+          fill = shade(wallBase, lit ? -0.12 : 0.05);
+          tx = wallTex;
+        }
+        faces.push({
+          pts: [[ax, ay, base], [bx, by, base], [bx, by, top], [ax, ay, top]],
+          fill,
+          stroke,
+          tex: tx,
+          depth: x + y + base + 0.4,
+          kind: "ext"
+        });
+      }
+    }
+    // 連窓（外壁の開口をひと続きで生成・方立付き）
+    const pushWin = (a, b, z0, z1, kind, divs, frost, rt) => {
+      const midx = (a[0] + b[0]) / 2,
+        midy = (a[1] + b[1]) / 2;
+      faces.push({
+        pts: [[a[0], a[1], base + z0], [b[0], b[1], base + z0], [b[0], b[1], base + z1], [a[0], a[1], base + z1]],
+        fill: kind === "door" ? doorCol : glassCol,
+        depth: midx + midy + base + 0.47,
+        kind,
+        rt,
+        divs,
+        frost,
+        frame,
+        tall: z1 - z0 > 1.25
+      });
+    };
+    if (!wantGlassWall) {
+      const fcols = columnsFor(rooms, f, structure || "wood");
+      let entryPlaced = false;
+      for (const room of bldg) {
+        const rcells = polyCells(room.poly),
+          wp = winParams(room.type);
+        if (!wp) continue;
+        for (const sd of SIDES) {
+          const lines = {};
+          for (const [x, y] of rcells) {
+            const [nx, ny] = sd.nb(x, y);
+            if (occ[nx + "," + ny]) continue;
+            const fixed = sd.ax === "x" ? y : x,
+              mov = sd.ax === "x" ? x : y,
+              bf = !!bocc[nx + "," + ny];
+            (lines[fixed] = lines[fixed] || []).push([mov, bf]);
+          }
+          for (const fk in lines) {
+            const arr = lines[fk].sort((p, q) => p[0] - q[0]);
+            let i = 0;
+            while (i < arr.length) {
+              let j = i;
+              while (j + 1 < arr.length && arr[j + 1][0] === arr[j][0] + 1) j++;
+              const m1 = arr[i][0],
+                m2 = arr[j][0] + 1,
+                fx = +fk,
+                anyB = arr.slice(i, j + 1).some(a => a[1]);
+              i = j + 1;
+              const ins = (s, e) => {
+                const pe = sd.pt(s, e, fx);
+                if (sd.ax === "x") {
+                  pe[0][0] += 0.14;
+                  pe[1][0] -= 0.14;
+                } else {
+                  pe[0][1] += 0.14;
+                  pe[1][1] -= 0.14;
+                }
+                return pe;
+              };
+              const wallC = sd.ax === "x" ? sd.s === "N" ? fx : fx + 1 : sd.s === "W" ? fx : fx + 1;
+              const sp = [];
+              for (const cpt of fcols) {
+                if (sd.ax === "x") {
+                  if (cpt[1] === wallC && cpt[0] > m1 && cpt[0] < m2) sp.push(cpt[0]);
+                } else {
+                  if (cpt[0] === wallC && cpt[1] > m1 && cpt[1] < m2) sp.push(cpt[1]);
+                }
+              }
+              sp.sort((a, b) => a - b);
+              const segs = [];
+              let pv = m1;
+              for (const spc of sp) {
+                if (spc - pv >= 0.5) segs.push([pv, spc]);
+                pv = spc;
+              }
+              if (m2 - pv >= 0.5) segs.push([pv, m2]);
+              const doSeg = (s2, e2) => {
+                if (anyB) {
+                  const pe = ins(s2, e2);
+                  pushWin(pe[0], pe[1], 0.05, 1.82, "win", Math.max(2, Math.round(e2 - s2)), false, room.type);
+                  return;
+                }
+                if (wp.door) {
+                  if (entryPlaced) return;
+                  entryPlaced = true;
+                  const c = (s2 + e2) / 2,
+                    ss = Math.max(s2, c - 0.6),
+                    ee = Math.min(e2, c + 0.6);
+                  const pe = ins(ss, ee);
+                  pushWin(pe[0], pe[1], wp.z0, wp.z1, "door", Math.max(2, Math.round(ee - ss)), false, room.type);
+                  return;
+                }
+                if (wp.small) {
+                  const c = (s2 + e2) / 2,
+                    pe = ins(c - 0.5, c + 0.5);
+                  pushWin(pe[0], pe[1], wp.z0, wp.z1, "win", 1, wp.frost, room.type);
+                  return;
+                }
+                if (design && design.glass === "punched") {
+                  for (let mm = Math.ceil(s2); mm < e2 - 0.01; mm++) {
+                    const pe = ins(mm + 0.22, mm + 0.78);
+                    pushWin(pe[0], pe[1], wp.z0 + 0.1, wp.z1 - 0.1, "win", 1, false, room.type);
+                  }
+                  return;
+                }
+                const pe = ins(s2, e2);
+                pushWin(pe[0], pe[1], wp.z0, wp.z1, "win", Math.max(1, Math.round(e2 - s2)), false, room.type);
+              };
+              for (const sg of segs) doSeg(sg[0], sg[1]);
+            }
+          }
+        }
+      }
+    }
+    balc.forEach(r => {
+      const col = colors[r.type];
+      for (const [x, y] of polyCells(r.poly)) for (const side of ["N", "S", "E", "W"]) {
+        const nb = side === "N" ? [x, y - 1] : side === "S" ? [x, y + 1] : side === "E" ? [x + 1, y] : [x - 1, y],
+          nk = nb[0] + "," + nb[1];
+        if (occ[nk]) continue;
+        if (bocc[nk] === r) continue;
+        const [[ax, ay], [bx, by]] = edgeXY(x, y, side),
+          rh = base + 0.7;
+        faces.push({
+          pts: [[ax, ay, base], [bx, by, base], [bx, by, rh], [ax, ay, rh]],
+          depth: x + y + base + 0.3,
+          kind: "railg"
+        });
+        faces.push({
+          pts: [[ax, ay, rh], [bx, by, rh], [bx, by, rh + 0.07], [ax, ay, rh + 0.07]],
+          fill: "#3a3f45",
+          depth: x + y + base + 0.34,
+          kind: "railc"
+        });
+      }
+    });
+  }
+  if (isExt) {
+    const roofKind = design ? design.roof : "hip",
+      roofCol = design ? design.roofCol : theme.roof,
+      roofTex = design ? design.roofTex : "smooth";
+    buildRoof(faces, rooms, floorCount, roofKind, roofCol, roofTex);
+  }
+  return faces;
+}
+const SCENE_DEFS = '<linearGradient id="gAOwall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.10"/><stop offset="0.45" stop-color="#ffffff" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity="0.30"/></linearGradient><linearGradient id="gAOroof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.18"/><stop offset="1" stop-color="#000000" stop-opacity="0.16"/></linearGradient><linearGradient id="gGlass" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#dcecf8" stop-opacity="0.92"/><stop offset="0.5" stop-color="#9bb8ce" stop-opacity="0.78"/><stop offset="1" stop-color="#5f7d97" stop-opacity="0.85"/></linearGradient><linearGradient id="gFrost" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef4f7" stop-opacity="0.9"/><stop offset="1" stop-color="#c4d2da" stop-opacity="0.85"/></linearGradient><filter id="fSh" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.6"/></filter>';
+
+/* ---- Three.js(WebGL) パースエンジン：buildSceneの面を実3Dメッシュ化 ---- */
+function texCanvas(T, tex, color) {
+  const cv = typeof document !== "undefined" ? document.createElement("canvas") : {
+    getContext: () => ({}),
+    width: 0,
+    height: 0
+  };
+  cv.width = 64;
+  cv.height = 64;
+  const x = cv.getContext("2d");
+  if (!x.fillRect) {
+    const t0 = new T.CanvasTexture(cv);
+    return t0;
+  }
+  const [r, g, b] = toRGB(color);
+  const base = `rgb(${r},${g},${b})`;
+  const ln = shade(color, -0.16),
+    d2 = shade(color, -0.26),
+    d3 = shade(color, -0.36),
+    l1 = shade(color, 0.12),
+    l2 = shade(color, 0.22),
+    m = shade(color, 0.2);
+  x.fillStyle = base;
+  x.fillRect(0, 0, 64, 64);
+  const line = (x1, y1, x2, y2, c, w) => {
+    x.strokeStyle = c;
+    x.lineWidth = w;
+    x.beginPath();
+    x.moveTo(x1, y1);
+    x.lineTo(x2, y2);
+    x.stroke();
+  };
+  const rect = (a, c, w, h, col) => {
+    x.fillStyle = col;
+    x.fillRect(a, c, w, h);
+  };
+  if (tex === "brick" || tex === "brick_roman") {
+    x.fillStyle = m;
+    x.fillRect(0, 0, 64, 64);
+    const ch = tex === "brick_roman" ? 9 : 16,
+      bw = tex === "brick_roman" ? 64 : 21;
+    for (let r2 = 0; r2 < 64 / ch + 1; r2++) {
+      const y = r2 * ch,
+        off = r2 % 2 * (bw / 2);
+      for (let bx = -1; bx < 64 / bw + 1; bx++) {
+        rect(off + bx * bw + 1, y + 1.5, bw - 2, ch - 3, bx % 2 ? ln : base);
+      }
+    }
+  } else if (tex === "concrete_ando") {
+    line(0, 1, 64, 1, ln, 1.5);
+    line(0, 32, 64, 32, ln, 1);
+    const hole = (cx, cy) => {
+      x.fillStyle = d3;
+      x.beginPath();
+      x.arc(cx, cy, 3.2, 0, 7);
+      x.fill();
+      x.fillStyle = l2;
+      x.beginPath();
+      x.arc(cx - 0.8, cy - 0.8, 1.2, 0, 7);
+      x.fill();
+    };
+    hole(16, 16);
+    hole(48, 16);
+    hole(16, 48);
+    hole(48, 48);
+  } else if (tex === "concrete_board") {
+    line(32, 0, 32, 64, d2, 1.4);
+    line(1, 0, 1, 64, l1, 1);
+    x.fillStyle = d3;
+    x.beginPath();
+    x.arc(32, 32, 1.8, 0, 7);
+    x.fill();
+  } else if (tex === "concrete") {
+    line(0, 32, 64, 32, ln, 0.8);
+    x.fillStyle = l1;
+    x.beginPath();
+    x.arc(20, 20, 2, 0, 7);
+    x.fill();
+    x.fillStyle = ln;
+    x.beginPath();
+    x.arc(44, 42, 2.4, 0, 7);
+    x.fill();
+  } else if (tex === "render") {
+    line(13, 0, 13, 64, l1, 0.7);
+    line(46, 0, 46, 64, ln, 0.6);
+  } else if (tex === "wood" || tex === "floor_wood") {
+    for (let i = 1; i < 6; i++) line(0, i * 64 / 6, 64, i * 64 / 6, i % 2 ? d2 : l1, 1);
+    line(32, 0, 32, 64, d2, 0.8);
+  } else if (tex === "floor_tile") {
+    line(21, 0, 21, 64, ln, 1.5);
+    line(43, 0, 43, 64, ln, 1.5);
+    line(0, 21, 64, 21, ln, 1.5);
+    line(0, 43, 64, 43, ln, 1.5);
+  } else if (tex === "tatami") {
+    x.strokeStyle = d3;
+    x.lineWidth = 2.2;
+    x.strokeRect(2, 2, 60, 60);
+    line(0, 32, 64, 32, d3, 1.4);
+  } else if (tex === "travertine") {
+    line(0, 19, 64, 18, ln, 1);
+    line(0, 45, 64, 47, ln, 0.8);
+    x.fillStyle = d2;
+    x.beginPath();
+    x.arc(20, 33, 1.6, 0, 7);
+    x.fill();
+  } else if (tex === "metal") {
+    line(8, 0, 8, 64, l2, 1);
+    line(32, 0, 32, 64, d2, 0.8);
+    line(56, 0, 56, 64, l2, 1);
+  } else if (tex === "louver") {
+    for (let i = 0; i < 7; i++) {
+      line(0, i * 9 + 3, 64, i * 9 + 3, d3, 4);
+      line(0, i * 9 + 7, 64, i * 9 + 7, l2, 1.4);
+    }
+  } else if (tex === "roof_tile") {
+    x.fillStyle = base;
+    x.fillRect(0, 0, 64, 64);
+    for (let i = 0; i < 5; i++) {
+      const y = i * 13;
+      rect(0, y, 64, 11, ln);
+      line(0, y, 64, y, d3, 1.6);
+      for (let j = 0; j < 5; j++) line(j * 16 + 8, y, j * 16 + 8, y + 11, d2, 1.2);
+    }
+  }
+  const t = new T.CanvasTexture(cv);
+  t.wrapS = t.wrapT = T.RepeatWrapping;
+  t.anisotropy = 4;
+  return t;
+}
+const HSCALE = 1.32;
+function windowCanvas(T, f) {
+  const W = 100,
+    H = 160,
+    cv = typeof document !== "undefined" ? document.createElement("canvas") : {
+      getContext: () => ({})
+    };
+  cv.width = W;
+  cv.height = H;
+  const x = cv.getContext("2d");
+  if (!x.fillRect) {
+    return new T.CanvasTexture(cv);
+  }
+  const isDoor = f.kind === "door",
+    isEntry = f.rt === "entry";
+  const [dr, dg, db] = toRGB(f.fill || (isEntry ? "#5e3f25" : "#7d8a93"));
+  const base = "rgb(" + dr + "," + dg + "," + db + ")",
+    dk = m => "rgb(" + Math.round(dr * m) + "," + Math.round(dg * m) + "," + Math.round(db * m) + ")";
+  const rf = (a, b, w, h, c) => {
+    x.fillStyle = c;
+    x.fillRect(a, b, w, h);
+  };
+  const sr = (a, b, w, h, c, lw) => {
+    x.strokeStyle = c;
+    x.lineWidth = lw;
+    x.strokeRect(a, b, w, h);
+  };
+  if (isEntry) {
+    rf(0, 0, W, H, "#33241a");
+    const m = 7,
+      th = 26;
+    rf(m, m, W - 2 * m, H - 2 * m, base);
+    rf(m + 5, m + 5, W - 2 * m - 10, th, "#a7c4d8");
+    sr(m + 5, m + 5, W - 2 * m - 10, th, "#241910", 3);
+    x.strokeStyle = "rgba(40,28,18,0.7)";
+    x.lineWidth = 2;
+    x.beginPath();
+    x.moveTo((m + 5 + W - m - 5) / 2, m + 5);
+    x.lineTo((m + 5 + W - m - 5) / 2, m + 5 + th);
+    x.stroke();
+    const py0 = m + th + 12,
+      py1 = H - m - 20,
+      ph = (py1 - py0) / 2 - 6;
+    const panel = (a, b, w, h) => {
+      x.fillStyle = dk(0.8);
+      x.fillRect(a, b, w, h);
+      sr(a + 2, b + 2, w - 4, h - 4, "rgba(255,255,255,0.16)", 2);
+      sr(a, b, w, h, "rgba(0,0,0,0.4)", 2);
+    };
+    panel(m + 8, py0, W - 2 * m - 16, ph);
+    panel(m + 8, py0 + ph + 12, W - 2 * m - 16, ph);
+    rf(W - m - 15, H / 2 - 24, 6, 48, "#c9ccd0");
+    rf(W - m - 14, H / 2 - 24, 2, 48, "#83878c");
+    rf(m + 6, H - m - 16, W - 2 * m - 12, 12, "#b1b4b8");
+    sr(1, 1, W - 2, H - 2, "rgba(0,0,0,0.45)", 2);
+  } else if (isDoor) {
+    rf(0, 0, W, H, "#8f9aa1");
+    const m = 8;
+    rf(m, m, W - 2 * m, H - 2 * m, base);
+    rf(m + 5, m + 6, W - 2 * m - 10, 26, "#a7c4d8");
+    sr(m + 5, m + 6, W - 2 * m - 10, 26, "rgba(0,0,0,0.35)", 2);
+    const py = m + 46,
+      ph = (H - m - 10 - py) / 2 - 6;
+    sr(m + 8, py, W - 2 * m - 16, ph, "rgba(0,0,0,0.3)", 2);
+    sr(m + 8, py + ph + 12, W - 2 * m - 16, ph, "rgba(0,0,0,0.3)", 2);
+    x.fillStyle = "#cfd2d6";
+    x.beginPath();
+    x.arc(W - m - 15, H / 2, 4, 0, 7);
+    x.fill();
+    sr(1, 1, W - 2, H - 2, "rgba(0,0,0,0.4)", 2);
+  } else {
+    rf(0, 0, W, H, "#cdd0d4");
+    const m = 9,
+      gx = m,
+      gy = m,
+      gw = W - 2 * m,
+      gh = H - 2 * m;
+    if (f.frost) {
+      rf(gx, gy, gw, gh, "#dde7ec");
+    } else {
+      const grd = x.createLinearGradient(0, gy, 0, gy + gh);
+      grd.addColorStop(0, "#9cc0db");
+      grd.addColorStop(0.5, "#c4dbe8");
+      grd.addColorStop(1, "#a7c1d0");
+      x.fillStyle = grd;
+      x.fillRect(gx, gy, gw, gh);
+    }
+    if (!f.frost) {
+      x.save();
+      x.beginPath();
+      x.moveTo(gx, gy + gh * 0.55);
+      x.lineTo(gx + gw * 0.5, gy);
+      x.lineTo(gx + gw * 0.78, gy);
+      x.lineTo(gx, gy + gh * 0.92);
+      x.closePath();
+      x.fillStyle = "rgba(255,255,255,0.18)";
+      x.fill();
+      x.restore();
+    }
+    const divs = Math.max(1, f.divs || 1);
+    x.fillStyle = "#c2c5c9";
+    for (let k = 1; k < divs; k++) {
+      const xx = gx + gw * k / divs;
+      x.fillRect(xx - 2.5, gy, 5, gh);
+    }
+    if (f.tall) {
+      x.fillRect(gx, gy + gh * 0.5 - 2.5, gw, 5);
+    }
+    rf(gx - 2, gy + gh - 3, gw + 4, 6, "#b1b4b8");
+    sr(gx, gy, gw, gh, "rgba(0,0,0,0.34)", 2);
+    sr(1, 1, W - 2, H - 2, "rgba(0,0,0,0.28)", 2);
+  }
+  const t = new T.CanvasTexture(cv);
+  t.wrapS = t.wrapT = T.ClampToEdgeWrapping;
+  t.anisotropy = 4;
+  return t;
+}
+function buildBuilding(T, rooms, floorCount, mode, design, structure, colors, theme) {
+  const faces = buildScene(rooms, floorCount, mode, colors, theme, design, structure);
+  const g = new T.Group();
+  const matCache = {};
+  const edgeMat = new T.LineBasicMaterial({
+    color: 0x23262b,
+    transparent: true,
+    opacity: 0.42
+  });
+  const col = c => {
+    const [r, g2, b] = toRGB(c);
+    return new T.Color(r / 255, g2 / 255, b / 255);
+  };
+  const mat = f => {
+    const k = f.kind,
+      tx = f.tex;
+    if (k === "win" || k === "door") {
+      const key = "w|" + k + "|" + (f.divs || 1) + "|" + (f.frost ? 1 : 0) + "|" + (f.tall ? 1 : 0) + "|" + (f.rt || "") + "|" + (f.fill || "");
+      if (!matCache[key]) matCache[key] = new T.MeshStandardMaterial({
+        map: windowCanvas(T, f),
+        roughness: 0.34,
+        metalness: 0.12,
+        envMapIntensity: 0.6,
+        side: T.DoubleSide
+      });
+      return matCache[key];
+    }
+    if (k === "railg" || tx === "glass" || tx === "gridglass") return new T.MeshStandardMaterial({
+      color: col("#9fc0d8"),
+      transparent: true,
+      opacity: 0.3,
+      roughness: 0.04,
+      metalness: 0.66,
+      envMapIntensity: 1.9,
+      side: T.DoubleSide
+    });
+    if (k === "door") {
+      const key = "d|" + f.fill;
+      if (!matCache[key]) matCache[key] = new T.MeshStandardMaterial({
+        color: col(f.fill),
+        roughness: 0.5,
+        metalness: 0.08,
+        envMapIntensity: 0.7,
+        side: T.DoubleSide
+      });
+      return matCache[key];
+    }
+    if (k === "fix" || k === "col" || k === "railc") {
+      const key = "x|" + f.fill + k;
+      if (!matCache[key]) matCache[key] = new T.MeshStandardMaterial({
+        color: col(f.fill),
+        roughness: 0.78,
+        metalness: k === "railc" ? 0.55 : 0.05,
+        envMapIntensity: 0.8,
+        side: T.DoubleSide
+      });
+      return matCache[key];
+    }
+    if (tx && tx !== "smooth") {
+      const key = "t|" + tx + "|" + f.fill;
+      if (!matCache[key]) matCache[key] = new T.MeshStandardMaterial({
+        map: texCanvas(T, tx, f.fill),
+        roughness: tx === "metal" ? 0.38 : 0.88,
+        metalness: tx === "metal" ? 0.55 : 0.02,
+        envMapIntensity: 0.55,
+        side: T.DoubleSide
+      });
+      return matCache[key];
+    }
+    const ck = "s|" + f.fill;
+    if (!matCache[ck]) matCache[ck] = new T.MeshStandardMaterial({
+      color: col(f.fill),
+      roughness: 0.85,
+      envMapIntensity: 0.5,
+      side: T.DoubleSide
+    });
+    return matCache[ck];
+  };
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  const edged = {
+    ext: 1,
+    int: 1,
+    roof: 1,
+    fascia: 1,
+    door: 1,
+    win: 1
+  };
+  for (const f of faces) {
+    const v = f.pts.map(p => [p[0], p[2] * HSCALE, p[1]]);
+    const geo = new T.BufferGeometry();
+    let pos, uv, idx;
+    if (v.length === 4) {
+      pos = [...v[0], ...v[1], ...v[2], ...v[3]];
+      idx = [0, 1, 2, 0, 2, 3];
+    } else {
+      pos = [...v[0], ...v[1], ...v[2]];
+      idx = [0, 1, 2];
+    }
+    if (f.kind === "roof") {
+      uv = [];
+      for (const p of v) uv.push(p[0] * 0.5, p[2] * 0.5);
+    } else if (f.kind === "win" || f.kind === "door") {
+      uv = v.length === 4 ? [0, 1, 1, 1, 1, 0, 0, 0] : [0, 1, 1, 1, 0, 0];
+    } else if (v.length === 4) {
+      const e1 = dist(v[1], v[0]),
+        e2 = dist(v[3], v[0]);
+      uv = [0, 0, e1, 0, e1, e2, 0, e2];
+    } else {
+      const e1 = dist(v[1], v[0]),
+        e2 = dist(v[2], v[0]);
+      uv = [0, 0, e1, 0, 0, e2];
+    }
+    geo.setAttribute("position", new T.Float32BufferAttribute(pos, 3));
+    geo.setAttribute("uv", new T.Float32BufferAttribute(uv, 2));
+    geo.setIndex(idx);
+    geo.computeVertexNormals();
+    const me = new T.Mesh(geo, mat(f));
+    me.castShadow = f.kind !== "floor";
+    me.receiveShadow = true;
+    g.add(me);
+    if (edged[f.kind]) {
+      try {
+        const eg = new T.EdgesGeometry(geo, 24);
+        g.add(new T.LineSegments(eg, edgeMat));
+      } catch (e) {}
+    }
+  }
+  return g;
+}
+function Three3D({
+  rooms,
+  floorCount,
+  mode,
+  colors,
+  theme,
+  design,
+  structure,
+  topView,
+  sunTime,
+  ground,
+  softShadow
+}) {
+  const mountRef = useRef(null);
+  useEffect(() => {
+    const T = typeof THREE !== "undefined" && THREE ? THREE : typeof window !== "undefined" ? window.THREE : null;
+    const mount = mountRef.current;
+    if (!T || !mount) return;
+    const Wd = mount.clientWidth || 600,
+      Ht = 460;
+    let renderer;
+    try {
+      renderer = new T.WebGLRenderer({
+        antialias: true,
+        alpha: true
+      });
+    } catch (e) {
+      mount.innerHTML = '<div style="padding:24px;text-align:center;color:#999;font-size:12px">お使いの環境がWebGLに未対応のため、3Dパースを表示できません。</div>';
+      return;
+    }
+    renderer.setPixelRatio(Math.min(2, (typeof window !== "undefined" ? window.devicePixelRatio : 1) || 1));
+    renderer.setSize(Wd, Ht);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = T.PCFSoftShadowMap;
+    if (renderer.outputEncoding !== undefined) renderer.outputEncoding = T.sRGBEncoding;
+    if (T.ACESFilmicToneMapping) {
+      renderer.toneMapping = T.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.05;
+    }
+    mount.innerHTML = "";
+    mount.appendChild(renderer.domElement);
+    renderer.domElement.style.borderRadius = "8px";
+    renderer.domElement.style.cursor = "grab";
+    // 時刻(0..100) → 太陽の高度・方位・色温度
+    const tn = (sunTime == null ? 50 : sunTime) / 100;
+    const day = Math.sin(tn * Math.PI);
+    const elev = day * 0.95 + 0.06;
+    const azi = Math.PI * (0.18 + tn * 1.05);
+    const warm = 1 - day;
+    const skyTop = new T.Color().setHSL(0.58, 0.45, 0.52 + day * 0.18 - warm * 0.06);
+    const skyBot = new T.Color().setHSL(0.09 + day * 0.04, 0.35, 0.62 + day * 0.12);
+    const scene = new T.Scene();
+    scene.background = skyTop.clone().lerp(skyBot, 0.35);
+    scene.fog = new T.Fog(scene.background.getHex(), 45, 130);
+    scene.add(new T.AmbientLight(0xffffff, 0.30));
+    scene.add(new T.HemisphereLight(skyTop.getHex(), 0x6f6a5e, 0.34));
+    const sun = new T.DirectionalLight(0xffffff, 0.9 + day * 0.5);
+    sun.color.setRGB(1, 1 - warm * 0.22, 1 - warm * 0.42);
+    sun.castShadow = true;
+    const sm = softShadow ? 1536 : 2048;
+    sun.shadow.mapSize.set(sm, sm);
+    sun.shadow.radius = softShadow ? 7 : 2.2;
+    sun.shadow.bias = -0.0004;
+    const sc = sun.shadow.camera;
+    sc.left = -30;
+    sc.right = 30;
+    sc.top = 30;
+    sc.bottom = -30;
+    sc.near = 1;
+    sc.far = 110;
+    scene.add(sun);
+    scene.add(sun.target);
+    // 環境マップ(空グラデ)→ガラス・金属の映り込み
+    let envT = null;
+    try {
+      const pm = new T.PMREMGenerator(renderer);
+      const ec = document.createElement("canvas");
+      ec.width = 256;
+      ec.height = 128;
+      const ex = ec.getContext("2d");
+      const gr = ex.createLinearGradient(0, 0, 0, 128);
+      gr.addColorStop(0, "#" + skyTop.getHexString());
+      gr.addColorStop(0.5, "#dfeaf2");
+      gr.addColorStop(0.55, "#cfd6cb");
+      gr.addColorStop(1, "#b6b3a7");
+      ex.fillStyle = gr;
+      ex.fillRect(0, 0, 256, 128);
+      const eqt = new T.CanvasTexture(ec);
+      eqt.mapping = T.EquirectangularReflectionMapping;
+      envT = pm.fromEquirectangular(eqt).texture;
+      scene.environment = envT;
+      eqt.dispose();
+      pm.dispose();
+    } catch (e) {}
+    // 地面
+    const gcol = ground === "concrete" ? 0xb4b2ab : ground === "gravel" ? 0x9a948a : 0x7e9658;
+    const grough = ground === "concrete" ? 0.8 : ground === "gravel" ? 0.95 : 1.0;
+    const ground3 = new T.Mesh(new T.PlaneGeometry(200, 200), new T.MeshStandardMaterial({
+      color: gcol,
+      roughness: grough,
+      metalness: 0
+    }));
+    ground3.rotation.x = -Math.PI / 2;
+    ground3.position.y = -0.02;
+    ground3.receiveShadow = true;
+    scene.add(ground3);
+    let group;
+    try {
+      group = buildBuilding(T, rooms, floorCount, mode, design, structure, colors, theme);
+    } catch (e) {
+      mount.innerHTML = '<div style="padding:24px;color:#c1503b;font-size:12px">3Dの構築に失敗しました: ' + (e && e.message) + '</div>';
+      return;
+    }
+    scene.add(group);
+    const box = new T.Box3().setFromObject(group);
+    const ctr = box.getCenter(new T.Vector3());
+    const size = box.getSize(new T.Vector3());
+    sun.target.position.copy(ctr);
+    const radius = Math.max(size.x, size.z, 4) * 0.5 + 6;
+    sun.position.set(ctr.x + Math.cos(elev) * Math.sin(azi) * 40, ctr.y + Math.sin(elev) * 40 + 3, ctr.z + Math.cos(elev) * Math.cos(azi) * 40);
+    const cam = new T.PerspectiveCamera(42, Wd / Ht, 0.1, 500);
+    const st = {
+      az: Math.PI * 0.78,
+      el: topView ? Math.PI * 0.49 : Math.PI * 0.26,
+      dist: radius * 2.4
+    };
+    const place = () => {
+      const e = st.el,
+        a = st.az,
+        d = st.dist;
+      cam.position.set(ctr.x + d * Math.cos(e) * Math.sin(a), ctr.y + d * Math.sin(e), ctr.z + d * Math.cos(e) * Math.cos(a));
+      cam.lookAt(ctr);
+    };
+    place();
+    let drag = false,
+      px = 0,
+      py = 0;
+    const down = e => {
+      drag = true;
+      px = e.clientX;
+      py = e.clientY;
+      renderer.domElement.style.cursor = "grabbing";
+    };
+    const upE = () => {
+      drag = false;
+      renderer.domElement.style.cursor = "grab";
+    };
+    const moveE = e => {
+      if (!drag) return;
+      st.az -= (e.clientX - px) * 0.01;
+      st.el = Math.max(0.06, Math.min(Math.PI * 0.495, st.el + (e.clientY - py) * 0.01));
+      px = e.clientX;
+      py = e.clientY;
+      place();
+    };
+    const wheelE = e => {
+      e.preventDefault();
+      st.dist = Math.max(radius * 0.8, Math.min(radius * 5, st.dist * (e.deltaY > 0 ? 1.1 : 0.9)));
+      place();
+    };
+    const elc = renderer.domElement;
+    elc.addEventListener("pointerdown", down);
+    window.addEventListener("pointerup", upE);
+    window.addEventListener("pointermove", moveE);
+    elc.addEventListener("wheel", wheelE, {
+      passive: false
+    });
+    let raf = 0;
+    const loop = () => {
+      renderer.render(scene, cam);
+      raf = requestAnimationFrame(loop);
+    };
+    loop();
+    const onR = () => {
+      const w = mount.clientWidth || Wd;
+      renderer.setSize(w, Ht);
+      cam.aspect = w / Ht;
+      cam.updateProjectionMatrix();
+    };
+    window.addEventListener("resize", onR);
+    return () => {
+      cancelAnimationFrame(raf);
+      elc.removeEventListener("pointerdown", down);
+      window.removeEventListener("pointerup", upE);
+      window.removeEventListener("pointermove", moveE);
+      elc.removeEventListener("wheel", wheelE);
+      window.removeEventListener("resize", onR);
+      if (envT) try {
+        envT.dispose();
+      } catch (e) {}
+      try {
+        renderer.dispose();
+      } catch (e) {}
+      if (elc.parentNode) elc.parentNode.removeChild(elc);
+    };
+  }, [rooms, floorCount, mode, design, structure, topView, colors, theme, sunTime, ground, softShadow]);
+  return /*#__PURE__*/React.createElement("div", {
+    ref: mountRef,
+    style: {
+      width: "100%",
+      height: 460
+    }
+  });
+}
+function Scene3D({
+  rooms,
+  floorCount,
+  mode,
+  colors,
+  theme,
+  design,
+  viewRot,
+  zoom,
+  structure,
+  topView
+}) {
+  const TW = 30,
+    TH = 15,
+    ZS = 15;
+  const faces = useMemo(() => buildScene(rooms, floorCount, mode, colors, theme, design, structure), [rooms, floorCount, mode, colors, theme, design, structure]);
+  if (faces.length === 0) return /*#__PURE__*/React.createElement("div", {
+    className: "text-xs text-center py-8",
+    style: {
+      color: theme.faint
+    }
+  }, "この表示に該当する部屋がありません");
+  let sx = 0,
+    sy = 0,
+    cc = 0,
+    gx0 = 1e9,
+    gy0 = 1e9,
+    gx1 = -1e9,
+    gy1 = -1e9;
+  faces.forEach(f => f.pts.forEach(p => {
+    sx += p[0];
+    sy += p[1];
+    cc++;
+    gx0 = Math.min(gx0, p[0]);
+    gy0 = Math.min(gy0, p[1]);
+    gx1 = Math.max(gx1, p[0]);
+    gy1 = Math.max(gy1, p[1]);
+  }));
+  const cx = sx / cc,
+    cy = sy / cc,
+    z = zoom || 1,
+    rot = ((viewRot || 0) % 4 + 4) % 4;
+  const R = (x, y) => {
+    const ax = x - cx,
+      ay = y - cy;
+    if (rot === 1) return [cx - ay, cy + ax];
+    if (rot === 2) return [cx - ax, cy - ay];
+    if (rot === 3) return [cx + ay, cy - ax];
+    return [x, y];
+  };
+  const proj = p => {
+    const [rx, ry] = R(p[0], p[1]);
+    return topView ? [rx * 21 * z, ry * 21 * z] : [(rx - ry) * TW / 2 * z, (rx + ry) * TH / 2 * z - p[2] * ZS * z];
+  };
+  const all = [];
+  faces.forEach(f => f.pts.forEach(p => all.push(proj(p))));
+  const xs = all.map(p => p[0]),
+    ys = all.map(p => p[1]);
+  const minX = Math.min(...xs),
+    maxX = Math.max(...xs),
+    minY = Math.min(...ys),
+    maxY = Math.max(...ys);
+  const pad = 30,
+    W = maxX - minX + pad * 2,
+    Hh = maxY - minY + pad * 2,
+    ox = -minX + pad,
+    oy = -minY + pad;
+  const PR = p => {
+    const [px, py] = proj(p);
+    return [px + ox, py + oy];
+  };
+  const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+  const wd = faces.map(f => {
+    let dxy = 0,
+      dz = 0;
+    f.pts.forEach(p => {
+      const [rx, ry] = R(p[0], p[1]);
+      dxy += rx + ry;
+      dz += p[2];
+    });
+    return {
+      f,
+      d: topView ? dz / f.pts.length * 100 + dxy / f.pts.length : dxy / f.pts.length + dz / f.pts.length
+    };
+  });
+  wd.sort((a, b) => a.d - b.d);
+  const patList = [];
+  let pid = 0;
+  const els = [];
+  let ki = 0;
+  const sub3 = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const add3 = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+  const texMat = f => {
+    const p = f.pts,
+      O = p[0];
+    let a1, a2;
+    if (f.kind === "roof" && p.length === 3) {
+      a1 = sub3(p[1], O);
+      a2 = sub3(p[2], O);
+    } else if (f.kind === "floor") {
+      a1 = sub3(p[1], O);
+      a2 = sub3(p[3], O);
+    } else {
+      a1 = sub3(p[1], O);
+      const v = sub3(p[3], O);
+      a2 = [v[0] * 0.36, v[1] * 0.36, v[2] * 0.36];
+    }
+    const sO = PR(O),
+      sU = PR(add3(O, a1)),
+      sV = PR(add3(O, a2));
+    return [sU[0] - sO[0], sU[1] - sO[1], sV[0] - sO[0], sV[1] - sO[1], sO[0], sO[1]];
+  };
+  let roofPatUrl = null;
+  {
+    const rfc = faces.find(ff => ff.kind === "roof" && ff.tex && ff.tex !== "smooth");
+    if (rfc) {
+      let rx0 = 1e9,
+        ry0 = 1e9,
+        rz = 0,
+        rc = 0;
+      faces.forEach(ff => {
+        if (ff.kind === "roof") ff.pts.forEach(p => {
+          rx0 = Math.min(rx0, p[0]);
+          ry0 = Math.min(ry0, p[1]);
+          rz += p[2];
+          rc++;
+        });
+      });
+      rz = rz / Math.max(1, rc);
+      const O = [rx0, ry0, rz],
+        sO = PR(O),
+        sU = PR([rx0 + 1, ry0, rz]),
+        sV = PR([rx0, ry0 + 1, rz]);
+      const mm = [sU[0] - sO[0], sU[1] - sO[1], sV[0] - sO[0], sV[1] - sO[1], sO[0], sO[1]];
+      if (Math.abs(mm[0] * mm[3] - mm[1] * mm[2]) >= 1) {
+        patList.push("<pattern id=\"roofpat\" patternUnits=\"userSpaceOnUse\" width=\"1\" height=\"1\" patternTransform=\"matrix(" + mm.map(v => v.toFixed(3)).join(" ") + ")\">" + unitTex(rfc.tex, rfc.fill) + "</pattern>");
+        roofPatUrl = "url(#roofpat)";
+      }
+    }
+  }
+  const facePat = f => {
+    if (!f.tex || f.tex === "smooth") return f.fill;
+    if (f.tex === "glass" || f.tex === "gridglass") return "url(#gGlass)";
+    if (f.kind === "roof") return roofPatUrl || f.fill;
+    const mm = texMat(f);
+    if (Math.abs(mm[0] * mm[3] - mm[1] * mm[2]) < 1) return f.fill;
+    const id = "ft" + pid++;
+    patList.push("<pattern id=\"" + id + "\" patternUnits=\"userSpaceOnUse\" width=\"1\" height=\"1\" patternTransform=\"matrix(" + mm.map(v => v.toFixed(3)).join(" ") + ")\">" + unitTex(f.tex, f.fill) + "</pattern>");
+    return "url(#" + id + ")";
+  };
+  for (const {
+    f
+  } of wd) {
+    const pp = f.pts.map(PR),
+      ptsStr = pp.map(p => p.join(",")).join(" ");
+    if (f.kind === "win") {
+      const A = pp[0],
+        Bp = pp[1],
+        Cp = pp[2],
+        Dp = pp[3],
+        n = f.divs || 1,
+        fr = f.frame || "#3a3a3a";
+      els.push(/*#__PURE__*/React.createElement("polygon", {
+        key: ki++,
+        points: ptsStr,
+        fill: f.frost ? "url(#gFrost)" : "url(#gGlass)",
+        stroke: "none"
+      }));
+      for (let i = 1; i < n; i++) {
+        const t = i / n,
+          a = lerp(A, Bp, t),
+          b = lerp(Dp, Cp, t);
+        els.push(/*#__PURE__*/React.createElement("line", {
+          key: ki++,
+          x1: a[0],
+          y1: a[1],
+          x2: b[0],
+          y2: b[1],
+          stroke: fr,
+          strokeWidth: "0.8"
+        }));
+      }
+      if (f.tall) {
+        const a = lerp(A, Dp, 0.5),
+          b = lerp(Bp, Cp, 0.5);
+        els.push(/*#__PURE__*/React.createElement("line", {
+          key: ki++,
+          x1: a[0],
+          y1: a[1],
+          x2: b[0],
+          y2: b[1],
+          stroke: fr,
+          strokeWidth: "0.8"
+        }));
+      }
+      els.push(/*#__PURE__*/React.createElement("polygon", {
+        key: ki++,
+        points: ptsStr,
+        fill: "none",
+        stroke: fr,
+        strokeWidth: "1.5",
+        strokeLinejoin: "round"
+      }));
+      els.push(/*#__PURE__*/React.createElement("line", {
+        key: ki++,
+        x1: A[0],
+        y1: A[1],
+        x2: Bp[0],
+        y2: Bp[1],
+        stroke: "rgba(255,255,255,0.55)",
+        strokeWidth: "1.3"
+      }));
+    } else if (f.kind === "door") {
+      const A = pp[0],
+        Bp = pp[1],
+        Cp = pp[2],
+        Dp = pp[3];
+      els.push(/*#__PURE__*/React.createElement("polygon", {
+        key: ki++,
+        points: ptsStr,
+        fill: f.fill,
+        stroke: "rgba(0,0,0,0.5)",
+        strokeWidth: "1",
+        strokeLinejoin: "round"
+      }));
+      for (let i = 1; i < (f.divs || 1); i++) {
+        const t = i / (f.divs || 1),
+          a = lerp(A, Bp, t),
+          b = lerp(Dp, Cp, t);
+        els.push(/*#__PURE__*/React.createElement("line", {
+          key: ki++,
+          x1: a[0],
+          y1: a[1],
+          x2: b[0],
+          y2: b[1],
+          stroke: f.frame || "#222",
+          strokeWidth: "0.8"
+        }));
+      }
+      const a1 = lerp(A, Dp, 0.42),
+        b1 = lerp(Bp, Cp, 0.42);
+      els.push(/*#__PURE__*/React.createElement("line", {
+        key: ki++,
+        x1: a1[0],
+        y1: a1[1],
+        x2: b1[0],
+        y2: b1[1],
+        stroke: "rgba(0,0,0,0.3)",
+        strokeWidth: "0.6"
+      }));
+      const hp = lerp(lerp(A, Bp, 0.85), lerp(Dp, Cp, 0.85), 0.45);
+      els.push(/*#__PURE__*/React.createElement("circle", {
+        key: ki++,
+        cx: hp[0],
+        cy: hp[1],
+        r: "1.1",
+        fill: "#cdb56a"
+      }));
+    } else if (f.kind === "floor") {
+      const fill = facePat(f);
+      els.push(/*#__PURE__*/React.createElement("polygon", {
+        key: ki++,
+        points: ptsStr,
+        fill: fill,
+        stroke: "rgba(0,0,0,0.05)",
+        strokeWidth: "0.2"
+      }));
+    } else if (f.kind === "railg") {
+      const A = pp[0],
+        Bp = pp[1],
+        Cp = pp[2],
+        Dp = pp[3];
+      els.push(/*#__PURE__*/React.createElement("polygon", {
+        key: ki++,
+        points: ptsStr,
+        fill: "url(#gGlass)",
+        stroke: "rgba(40,50,60,0.45)",
+        strokeWidth: "0.8",
+        strokeLinejoin: "round"
+      }));
+      for (let i = 1; i < 5; i++) {
+        const t = i / 5,
+          a = lerp(A, Bp, t),
+          b = lerp(Dp, Cp, t);
+        els.push(/*#__PURE__*/React.createElement("line", {
+          key: ki++,
+          x1: a[0],
+          y1: a[1],
+          x2: b[0],
+          y2: b[1],
+          stroke: "#4a5058",
+          strokeWidth: "0.7"
+        }));
+      }
+    } else if (f.kind === "railc") {
+      els.push(/*#__PURE__*/React.createElement("polygon", {
+        key: ki++,
+        points: ptsStr,
+        fill: f.fill,
+        stroke: "rgba(0,0,0,0.4)",
+        strokeWidth: "0.4"
+      }));
+    } else if (f.kind === "fix" || f.kind === "rail" || f.kind === "col") {
+      els.push(/*#__PURE__*/React.createElement("polygon", {
+        key: ki++,
+        points: ptsStr,
+        fill: f.fill,
+        stroke: f.stroke || "rgba(0,0,0,0.2)",
+        strokeWidth: "0.3",
+        strokeLinejoin: "round"
+      }));
+    } else {
+      const fill = facePat(f);
+      els.push(/*#__PURE__*/React.createElement("polygon", {
+        key: ki++,
+        points: ptsStr,
+        fill: fill,
+        stroke: f.stroke || "rgba(0,0,0,0.14)",
+        strokeWidth: f.stroke ? 0.7 : 0.3,
+        strokeLinejoin: "round"
+      }));
+      els.push(/*#__PURE__*/React.createElement("polygon", {
+        key: ki++,
+        points: ptsStr,
+        fill: f.kind === "roof" ? "url(#gAOroof)" : "url(#gAOwall)",
+        stroke: "none"
+      }));
+      if (f.tex === "gridglass") {
+        const mm = texMat(f);
+        if (Math.abs(mm[0] * mm[3] - mm[1] * mm[2]) >= 1) {
+          const mid = "ft" + pid++;
+          patList.push("<pattern id=\"" + mid + "\" patternUnits=\"userSpaceOnUse\" width=\"1\" height=\"1\" patternTransform=\"matrix(" + mm.map(v => v.toFixed(3)).join(" ") + ")\">" + unitTex("mullion", f.fill) + "</pattern>");
+          els.push(/*#__PURE__*/React.createElement("polygon", {
+            key: ki++,
+            points: ptsStr,
+            fill: "url(#" + mid + ")",
+            stroke: "none"
+          }));
+        }
+      }
+    }
+  }
+  const isExt = mode === "ext",
+    mg = 3,
+    bg = [/*#__PURE__*/React.createElement("rect", {
+      key: "sky",
+      x: "0",
+      y: "0",
+      width: W,
+      height: Hh,
+      fill: "url(#gSky)"
+    })];
+  if (isExt) {
+    const gp = [[gx0 - mg, gy0 - mg, 0], [gx1 + mg, gy0 - mg, 0], [gx1 + mg, gy1 + mg, 0], [gx0 - mg, gy1 + mg, 0]].map(PR).map(p => p.join(",")).join(" ");
+    bg.push(/*#__PURE__*/React.createElement("polygon", {
+      key: "grd",
+      points: gp,
+      fill: "url(#gGround)"
+    }));
+    const sh = [...floorCellSet(rooms, 1, false)].map((k, i) => {
+      const [a, b] = k.split(",").map(Number);
+      const q = [[a, b, 0], [a + 1, b, 0], [a + 1, b + 1, 0], [a, b + 1, 0]].map(PR).map(p => [p[0] + 20, p[1] + 9].join(",")).join(" ");
+      return /*#__PURE__*/React.createElement("polygon", {
+        key: "s" + i,
+        points: q,
+        fill: "rgba(0,0,0,0.16)"
+      });
+    });
+    bg.push(/*#__PURE__*/React.createElement("g", {
+      key: "sh",
+      filter: "url(#fSh)"
+    }, sh));
+  }
+  const skyTop = mix(theme.sky, "#bcd6ec", 0.55),
+    skyBot = mix(theme.sky, "#eef4f8", 0.40),
+    grd = mix(theme.sky, "#928c80", 0.55);
+  const tdefs = `<linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${skyTop}"/><stop offset="1" stop-color="${skyBot}"/></linearGradient><linearGradient id="gGround" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${shade(grd, 0.08)}"/><stop offset="1" stop-color="${shade(grd, -0.12)}"/></linearGradient>`;
+  return /*#__PURE__*/React.createElement("svg", {
+    viewBox: `0 0 ${W} ${Hh}`,
+    style: {
+      width: "100%",
+      height: "auto",
+      display: "block",
+      borderRadius: 8
+    }
+  }, /*#__PURE__*/React.createElement("defs", {
+    dangerouslySetInnerHTML: {
+      __html: SCENE_DEFS + tdefs + patList.join("")
+    }
+  }), bg, els);
+}
+const VIEW_MODES = [{
+  key: "ext",
+  label: "外装"
+}, {
+  key: "f1",
+  label: "1階"
+}, {
+  key: "f2",
+  label: "2階"
+}, {
+  key: "f3",
+  label: "3階"
+}];
+function resolveDesign(key, sw, sr, si, sg) {
+  const d = DESIGN[key];
+  const w = d.walls[sw % d.walls.length],
+    r = d.roofs[sr % d.roofs.length],
+    it = d.inters[si % d.inters.length],
+    gz = d.glaz[sg % d.glaz.length];
+  return {
+    key,
+    wall: w.col,
+    wallTex: w.tex,
+    roofCol: r.col,
+    roof: r.kind,
+    roofTex: r.tex,
+    interCol: it.col,
+    interTex: it.tex,
+    glass: gz.glass,
+    glassCol: d.glassCol,
+    accent: d.accent,
+    door: d.door,
+    floor: d.floor,
+    eaves: d.eaves
+  };
+}
+function HomeDesignStudio() {
+  const [themeKey, setThemeKey] = useState("blueprint");
+  const theme = THEMES[themeKey];
+  const colors = ROOM_COLORS[themeKey];
+  const idRef = useRef(1);
+  const [rooms, setRooms] = useState(() => makeSample(idRef));
+  const [drag, setDrag] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
+  const [editMode, setEditMode] = useState("select");
+  const [pushMode, setPushMode] = useState(false);
+  const [floorCount, setFloorCount] = useState(2);
+  const [currentFloor, setCurrentFloor] = useState(1);
+  const [showBelow, setShowBelow] = useState(true);
+  const [siteArea, setSiteArea] = useState(100);
+  const [coverageMax, setCoverageMax] = useState(60);
+  const [farMax, setFarMax] = useState(200);
+  const [ai, setAi] = useState("idle");
+  const [aiStep, setAiStep] = useState(0);
+  const [architect, setArchitect] = useState("corbusier");
+  const [viewMode, setViewMode] = useState("ext");
+  const [design, setDesign] = useState(null);
+  const [selWall, setSelWall] = useState(0);
+  const [selRoof, setSelRoof] = useState(0);
+  const [selInt, setSelInt] = useState(0);
+  const [selGlz, setSelGlz] = useState(0);
+  const [viewRot, setViewRot] = useState(0);
+  const [zoom, setZoom] = useState(1);
+  const [structure, setStructure] = useState("wood");
+  const [topView, setTopView] = useState(false);
+  const [sunTime, setSunTime] = useState(50);
+  const [ground, setGround] = useState("grass");
+  const [softShadow, setSoftShadow] = useState(true);
+  const [undoRooms, setUndoRooms] = useState(null);
+  const [planMsg, setPlanMsg] = useState("");
+  const [planReasons, setPlanReasons] = useState([]);
+  useEffect(() => {
+    setSelWall(0);
+    setSelRoof(0);
+    setSelInt(0);
+    setSelGlz(0);
+  }, [design]);
+  const canvasRef = useRef(null),
+    dragRef = useRef(null);
+  const roomsRef = useRef(rooms);
+  roomsRef.current = rooms;
+  const floorRef = useRef(currentFloor);
+  floorRef.current = currentFloor;
+  const pushRef = useRef(false);
+  pushRef.current = pushMode;
+  const dragActive = !!drag;
+  function setD(d) {
+    dragRef.current = d;
+    setDrag(d);
+  }
+  function gridAt(e) {
+    const r = canvasRef.current.getBoundingClientRect();
+    return [(e.clientX - r.left) / CELL, (e.clientY - r.top) / CELL];
+  }
+  useEffect(() => {
+    if (!dragActive) return;
+    function onMove(e) {
+      const d = dragRef.current;
+      if (!d) return;
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const gxf = (e.clientX - rect.left) / CELL,
+        gyf = (e.clientY - rect.top) / CELL;
+      const rs = roomsRef.current;
+      let cand = d.poly,
+        valid = false;
+      if (d.kind === "new") {
+        let gx = Math.round(gxf - d.w / 2),
+          gy = Math.round(gyf - d.h / 2);
+        gx = Math.max(0, Math.min(COLS - d.w, gx));
+        gy = Math.max(0, Math.min(ROWS - d.h, gy));
+        const near = e.clientX >= rect.left - 60 && e.clientX <= rect.right + 60 && e.clientY >= rect.top - 60 && e.clientY <= rect.bottom + 60;
+        cand = rectPoly(gx, gy, d.w, d.h);
+        valid = near && roomValid(cand, rs, null, floorRef.current);
+      } else if (d.kind === "move") {
+        const dx = Math.round(gxf - d.startGX),
+          dy = Math.round(gyf - d.startGY);
+        cand = translatePoly(d.startPoly, dx, dy);
+        valid = roomValid(cand, rs, d.roomId, d.floor);
+      } else if (d.kind === "vertex") {
+        const nx = Math.max(0, Math.min(COLS, Math.round(gxf))),
+          ny = Math.max(0, Math.min(ROWS, Math.round(gyf)));
+        cand = cleanPoly(moveVertex(d.startPoly, d.idx, nx, ny));
+        valid = cand.length >= 4 && roomValid(cand, rs, d.roomId, d.floor);
+      } else if (d.kind === "edge") {
+        const nx = Math.max(0, Math.min(COLS, Math.round(gxf))),
+          ny = Math.max(0, Math.min(ROWS, Math.round(gyf)));
+        cand = cleanPoly(moveEdge(d.startPoly, d.idx, nx, ny));
+        valid = cand.length >= 4 && roomValid(cand, rs, d.roomId, d.floor);
+      }
+      let canPush = false;
+      if (!valid && pushRef.current && (d.kind === "new" || d.kind === "move") && inBounds(cand)) canPush = true;
+      setD({
+        ...d,
+        px: e.clientX,
+        py: e.clientY,
+        poly: cand,
+        valid,
+        canPush
+      });
+    }
+    function onUp() {
+      const d = dragRef.current;
+      if (d && d.poly) {
+        const floor = d.kind === "new" ? floorRef.current : d.floor;
+        if (d.valid) {
+          if (d.kind === "new") {
+            const id = idRef.current++;
+            setRooms(rs => [...rs, {
+              id,
+              type: d.type,
+              floor,
+              poly: d.poly
+            }]);
+            setSelectedId(id);
+          } else setRooms(rs => rs.map(r => r.id === d.roomId ? {
+            ...r,
+            poly: d.poly
+          } : r));
+        } else if (pushRef.current && (d.kind === "new" || d.kind === "move") && inBounds(d.poly)) {
+          const winCells = polyCells(d.poly);
+          if (d.kind === "new") {
+            const id = idRef.current++;
+            setRooms(rs => {
+              const nx = resolveOverlap(rs, winCells, -999, floor);
+              return [...nx, {
+                id,
+                type: d.type,
+                floor,
+                poly: d.poly
+              }];
+            });
+            setSelectedId(id);
+          } else {
+            setRooms(rs => {
+              const nx = resolveOverlap(rs, winCells, d.roomId, floor);
+              return nx.map(r => r.id === d.roomId ? {
+                ...r,
+                poly: d.poly
+              } : r);
+            });
+          }
+        }
+      }
+      dragRef.current = null;
+      setDrag(null);
+    }
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+  }, [dragActive]);
+  function startNew(e, item) {
+    e.preventDefault();
+    setD({
+      kind: "new",
+      type: item.type,
+      w: item.w,
+      h: item.h,
+      px: e.clientX,
+      py: e.clientY,
+      poly: null,
+      valid: false
+    });
+  }
+  function startMove(e, r) {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedId(r.id);
+    const [sgx, sgy] = gridAt(e);
+    setD({
+      kind: "move",
+      roomId: r.id,
+      floor: r.floor,
+      startPoly: r.poly,
+      startGX: sgx,
+      startGY: sgy,
+      poly: r.poly,
+      valid: true
+    });
+  }
+  function startVertex(e, r, idx) {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedId(r.id);
+    setD({
+      kind: "vertex",
+      roomId: r.id,
+      floor: r.floor,
+      idx,
+      startPoly: r.poly,
+      poly: r.poly,
+      valid: true
+    });
+  }
+  function onEdge(e, r, idx) {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedId(r.id);
+    if (editMode === "curve") {
+      const np = bowEdge(r.poly, idx, 0.75);
+      if (np && roomValid(np, rooms, r.id, r.floor)) setRooms(rs => rs.map(x => x.id === r.id ? {
+        ...x,
+        poly: np
+      } : x));
+      return;
+    }
+    if (editMode === "addvertex") {
+      const np = cleanPoly(addNotch(r.poly, idx));
+      if (roomValid(np, rooms, r.id, r.floor)) setRooms(rs => rs.map(x => x.id === r.id ? {
+        ...x,
+        poly: np
+      } : x));
+      return;
+    }
+    setD({
+      kind: "edge",
+      roomId: r.id,
+      floor: r.floor,
+      idx,
+      startPoly: r.poly,
+      poly: r.poly,
+      valid: true
+    });
+  }
+  function rotate(r) {
+    let np = rotatePoly90(r.poly);
+    const [x0, y0, x1, y1] = polyBounds(np);
+    let dx = 0,
+      dy = 0;
+    if (x0 < 0) dx = -x0;
+    if (y0 < 0) dy = -y0;
+    if (x1 + dx > COLS) dx -= x1 + dx - COLS;
+    if (y1 + dy > ROWS) dy -= y1 + dy - ROWS;
+    np = cleanPoly(translatePoly(np, dx, dy));
+    if (roomValid(np, rooms, r.id, r.floor)) setRooms(rs => rs.map(x => x.id === r.id ? {
+      ...x,
+      poly: np
+    } : x));
+  }
+  function setFurn(r, v) {
+    setRooms(rs => rs.map(x => x.id === r.id ? {
+      ...x,
+      furnVariant: v
+    } : x));
+  }
+  function resetShape(r) {
+    const [x0, y0, x1, y1] = polyBounds(r.poly);
+    const np = rectPoly(x0, y0, x1 - x0, y1 - y0);
+    if (roomValid(np, rooms, r.id, r.floor)) setRooms(rs => rs.map(x => x.id === r.id ? {
+      ...x,
+      poly: np
+    } : x));
+  }
+  function del(id) {
+    setRooms(rs => rs.filter(r => r.id !== id));
+    if (selectedId === id) setSelectedId(null);
+  }
+  function clearAll() {
+    setRooms([]);
+    setSelectedId(null);
+    setAi("idle");
+  }
+  function changeFloors(n) {
+    n = Math.max(1, Math.min(MAX_FLOORS, n));
+    setFloorCount(n);
+    setRooms(rs => rs.filter(r => r.floor <= n));
+    setCurrentFloor(c => Math.min(c, n));
+    setSelectedId(null);
+  }
+  function switchFloor(f) {
+    setCurrentFloor(f);
+    setSelectedId(null);
+  }
+  function loadSample() {
+    setFloorCount(2);
+    setCurrentFloor(1);
+    setRooms(makeSample(idRef));
+    setSelectedId(null);
+    setAi("idle");
+    setUndoRooms(null);
+    setPlanReasons([]);
+    setPlanMsg("");
+  }
+  function applyPlan(key) {
+    if (rooms.length === 0) return;
+    const before = rooms,
+      res = PLAN_FN[key](rooms);
+    setUndoRooms(before);
+    setRooms(res.rooms);
+    setSelectedId(null);
+    setPlanReasons(res.reasons || []);
+    const lbl = (ARCHITECTS.find(a => a.key === key) || {}).label || "";
+    setPlanMsg(`「${lbl}」の思想で補正（部屋 ${before.length}→${res.rooms.length}）`);
+  }
+  function undoPlan() {
+    if (undoRooms) {
+      setRooms(undoRooms);
+      setUndoRooms(null);
+      setSelectedId(null);
+      setPlanReasons([]);
+      setPlanMsg("間取りを元に戻しました");
+    }
+  }
+  const AI_STEPS = ["間取りを解析しています…", "用途別の開口（窓・扉）を配置…", "外壁/内壁/床/屋根を構築…", "素材テクスチャを焼き込み…", "フォトリアルにレンダリング…"];
+  useEffect(() => {
+    if (ai !== "loading") return;
+    setAiStep(0);
+    let i = 0;
+    const t = setInterval(() => {
+      i++;
+      setAiStep(i);
+      if (i >= AI_STEPS.length - 1) clearInterval(t);
+    }, 520);
+    const done = setTimeout(() => setAi("done"), AI_STEPS.length * 520 + 250);
+    return () => {
+      clearInterval(t);
+      clearTimeout(done);
+    };
+  }, [ai]);
+  function runAI() {
+    if (rooms.length === 0) return;
+    setAi("loading");
+  }
+  const metrics = useMemo(() => {
+    const floorArea = {};
+    for (let f = 1; f <= floorCount; f++) floorArea[f] = 0;
+    const buildingUnion = new Set(),
+      balconyCells = [],
+      roomCells = {};
+    let grossCells = 0;
+    for (const r of rooms) {
+      const cells = polyCells(r.poly);
+      roomCells[r.id] = cells;
+      if (isOpen(r.type)) {
+        for (const c of cells) balconyCells.push(c);
+        continue;
+      }
+      grossCells += cells.length;
+      floorArea[r.floor] = (floorArea[r.floor] || 0) + cells.length * CELL_M2;
+      for (const [x, y] of cells) buildingUnion.add(x + "," + y);
+    }
+    let countedBalcony = 0;
+    for (const [x, y] of balconyCells) {
+      if (buildingUnion.has(x + "," + y)) continue;
+      const near = buildingUnion.has(x - 1 + "," + y) || buildingUnion.has(x + 1 + "," + y) || buildingUnion.has(x + "," + (y - 1)) || buildingUnion.has(x + "," + (y + 1));
+      if (!near) countedBalcony++;
+    }
+    const buildArea = (buildingUnion.size + countedBalcony) * CELL_M2,
+      balconyArea = balconyCells.length * CELL_M2,
+      exemptArea = (balconyCells.length - countedBalcony) * CELL_M2;
+    const grossArea = grossCells * CELL_M2,
+      tsubo = buildArea / TSUBO;
+    const cov = siteArea > 0 ? buildArea / siteArea * 100 : 0,
+      far = siteArea > 0 ? grossArea / siteArea * 100 : 0;
+    const lightWarn = [];
+    for (let f = 1; f <= floorCount; f++) {
+      const occ = buildOcc(rooms.filter(r => !isOpen(r.type)), undefined, f);
+      for (const r of rooms) {
+        if (r.floor !== f || !ROOM[r.type].habitable) continue;
+        const cells = roomCells[r.id],
+          cset = new Set(cells.map(c => c[0] + "," + c[1]));
+        let ext = false;
+        for (const [x, y] of cells) {
+          for (const [nx, ny] of [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]]) {
+            if (cset.has(nx + "," + ny)) continue;
+            const out = nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS;
+            if (out || occ[nx + "," + ny] === undefined) {
+              ext = true;
+              break;
+            }
+          }
+          if (ext) break;
+        }
+        if (!ext) lightWarn.push(r.id);
+      }
+    }
+    const habitable = rooms.filter(r => ROOM[r.type].habitable).length,
+      usedFloors = new Set(rooms.map(r => r.floor)).size || 1;
+    return {
+      floorArea,
+      buildArea,
+      grossArea,
+      tsubo,
+      cov,
+      far,
+      lightWarn,
+      habitable,
+      nRooms: rooms.length,
+      usedFloors,
+      roomCells,
+      balconyArea,
+      exemptArea,
+      countedBalcony
+    };
+  }, [rooms, siteArea, floorCount]);
+  const violations = useMemo(() => {
+    const v = [];
+    if (metrics.cov > coverageMax) v.push({
+      k: "建蔽率超過",
+      law: "建築基準法 第53条",
+      detail: `建蔽率 ${metrics.cov.toFixed(1)}％ ＞ 上限 ${coverageMax}％（建築面積 ${metrics.buildArea.toFixed(1)}㎡）`
+    });
+    if (metrics.far > farMax) v.push({
+      k: "容積率超過",
+      law: "建築基準法 第52条",
+      detail: `容積率 ${metrics.far.toFixed(1)}％ ＞ 上限 ${farMax}％（延べ面積 ${metrics.grossArea.toFixed(1)}㎡）`
+    });
+    if (metrics.lightWarn.length) v.push({
+      k: "採光不足のおそれ",
+      law: "建築基準法 第28条",
+      detail: `${metrics.lightWarn.length}つの居室が外気に接しておらず採光用開口を確保できません`
+    });
+    return v;
+  }, [metrics, coverageMax, farMax]);
+  const currentRooms = rooms.filter(r => r.floor === currentFloor);
+  const belowRooms = showBelow && currentFloor > 1 ? rooms.filter(r => r.floor === currentFloor - 1) : [];
+  const selected = currentRooms.find(r => r.id === selectedId) || null;
+  const crit = critiqueOf(architect, metrics, coverageMax);
+  const archLabel = (ARCHITECTS.find(a => a.key === architect) || {}).label || "";
+  const dz = design ? resolveDesign(design, selWall, selRoof, selInt, selGlz) : null;
+  const archMat = design ? DESIGN[design] : null;
+  const panel = {
+    background: theme.panelBg,
+    border: `1px solid ${theme.panelBd}`,
+    borderRadius: 16,
+    backdropFilter: "blur(6px)"
+  };
+  const stepBtn = {
+    width: 24,
+    height: 24,
+    borderRadius: 7,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    border: `1px solid ${theme.panelBd}`,
+    background: hexA(theme.faint, 0.16),
+    color: theme.sub,
+    cursor: "pointer"
+  };
+  function polyPoints(poly) {
+    return poly.map(([x, y]) => `${x * CELL},${y * CELL}`).join(" ");
+  }
+  function centroid(cells) {
+    if (!cells || !cells.length) return [0, 0];
+    let sx = 0,
+      sy = 0;
+    for (const [x, y] of cells) {
+      sx += x + 0.5;
+      sy += y + 0.5;
+    }
+    return [sx / cells.length * CELL, sy / cells.length * CELL];
+  }
+  function fillFor(base) {
+    return theme.roomStyle === "glass" ? hexA(base, 0.18) : theme.roomStyle === "candy" ? hexA(base, 0.92) : hexA(base, 0.86);
+  }
+  function Meter({
+    label,
+    law,
+    value,
+    limit,
+    unit,
+    color
+  }) {
+    const pct = Math.min(100, limit > 0 ? value / limit * 100 : 0),
+      over = value > limit;
+    return /*#__PURE__*/React.createElement("div", {
+      className: "mb-3"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-end justify-between mb-1"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "text-xs",
+      style: {
+        color: theme.sub
+      }
+    }, label, " ", /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: theme.faint
+      }
+    }, "· ", law)), /*#__PURE__*/React.createElement("span", {
+      className: "text-sm font-bold",
+      style: {
+        color: over ? theme.warn : theme.ink
+      }
+    }, value.toFixed(1), unit, /*#__PURE__*/React.createElement("span", {
+      className: "text-xs font-normal",
+      style: {
+        color: theme.faint
+      }
+    }, " / ", limit, unit))), /*#__PURE__*/React.createElement("div", {
+      className: "w-full overflow-hidden",
+      style: {
+        height: 9,
+        borderRadius: 9,
+        background: hexA(theme.faint, 0.25)
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: `${pct}%`,
+        height: "100%",
+        borderRadius: 9,
+        background: over ? theme.warn : color,
+        transition: "width .25s ease"
+      }
+    })));
+  }
+  function MatRow({
+    label,
+    opts,
+    sel,
+    set
+  }) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-1 mb-1 flex-wrap"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "text-xs",
+      style: {
+        color: theme.faint,
+        width: 34
+      }
+    }, label), opts.map((o, i) => /*#__PURE__*/React.createElement("button", {
+      key: o.id,
+      onClick: () => set(i),
+      className: "text-xs px-2 py-0.5 rounded-md transition-transform hover:scale-105",
+      style: sel === i ? {
+        background: theme.buttonGrad,
+        color: "#fff",
+        fontWeight: 700
+      } : {
+        background: hexA(theme.faint, 0.16),
+        color: theme.sub
+      }
+    }, o.id)));
+  }
+  const handlePoly = selected ? drag && drag.roomId === selected.id && drag.poly ? drag.poly : selected.poly : null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: drag ? "select-none" : "",
+    style: {
+      minHeight: "100%",
+      background: theme.appBg,
+      color: theme.ink,
+      fontFamily: theme.font,
+      padding: "18px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      maxWidth: 1180,
+      margin: "0 auto"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center justify-between gap-3 mb-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-center",
+    style: {
+      width: 42,
+      height: 42,
+      borderRadius: 12,
+      background: theme.buttonGrad,
+      boxShadow: `0 6px 18px ${hexA(theme.accent, 0.4)}`
+    }
+  }, /*#__PURE__*/React.createElement(Home, {
+    size: 22,
+    color: "#fff"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "text-xl font-bold tracking-wide",
+    style: {
+      color: theme.ink
+    }
+  }, "AI間取りスタジオ"), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs px-2 py-0.5 rounded-full",
+    style: {
+      background: hexA(theme.accent, 0.16),
+      color: theme.accent,
+      border: `1px solid ${hexA(theme.accent, 0.4)}`
+    }
+  }, theme.tag)), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs",
+    style: {
+      color: theme.sub
+    }
+  }, "2026.06 ｜ 建築家6人AI・素材/建具/視点・形状追従屋根"))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1 p-1 rounded-full",
+    style: {
+      background: hexA(theme.faint, 0.18),
+      border: `1px solid ${theme.panelBd}`
+    }
+  }, Object.values(THEMES).map(t => /*#__PURE__*/React.createElement("button", {
+    key: t.key,
+    onClick: () => setThemeKey(t.key),
+    className: "text-xs px-3 py-1.5 rounded-full transition-transform hover:scale-105",
+    style: themeKey === t.key ? {
+      background: t.buttonGrad,
+      color: "#fff",
+      fontWeight: 700,
+      boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
+    } : {
+      color: theme.sub,
+      background: "transparent"
+    }
+  }, t.name)))), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap gap-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-full lg:w-44",
+    style: {
+      ...panel,
+      padding: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 mb-3"
+  }, /*#__PURE__*/React.createElement(Layers, {
+    size: 16,
+    color: theme.accent
+  }), /*#__PURE__*/React.createElement("h2", {
+    className: "text-sm font-bold",
+    style: {
+      color: theme.ink
+    }
+  }, "部屋ブロック")), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs mb-3",
+    style: {
+      color: theme.faint
+    }
+  }, "ドラッグで配置 → 頂点・辺で変形"), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap lg:block gap-2"
+  }, ROOM_TYPES.map(it => {
+    const Icon = it.icon,
+      base = colors[it.type],
+      m2 = (it.w * it.h * CELL_M2).toFixed(1),
+      jo = Math.max(1, Math.round(it.w * it.h * CELL_M2 / TATAMI));
+    return /*#__PURE__*/React.createElement("div", {
+      key: it.type,
+      onPointerDown: e => startNew(e, it),
+      className: "flex items-center gap-2 p-2 mb-0 lg:mb-2 rounded-xl cursor-grab transition-transform hover:scale-105 active:scale-95",
+      style: {
+        touchAction: "none",
+        background: hexA(base, theme.roomStyle === "glass" ? 0.12 : 0.18),
+        border: `1px solid ${hexA(base, 0.5)}`
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center justify-center",
+      style: {
+        width: 30,
+        height: 30,
+        borderRadius: 8,
+        background: hexA(base, 0.9)
+      }
+    }, /*#__PURE__*/React.createElement(Icon, {
+      size: 17,
+      color: theme.roomStyle === "washi" ? "#fbf7ee" : "#fff"
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "min-w-0"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-xs font-bold truncate",
+      style: {
+        color: theme.ink
+      }
+    }, it.label), /*#__PURE__*/React.createElement("div", {
+      className: "text-xs",
+      style: {
+        color: theme.faint
+      }
+    }, m2, "㎡", it.open ? "・突出緩和" : " · 約" + jo + "畳", it.habitable ? "・居室" : "")));
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1",
+    style: {
+      minWidth: 320
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center gap-2 mb-2 p-2 rounded-xl",
+    style: {
+      background: hexA(theme.faint, 0.10),
+      border: `1px solid ${theme.panelBd}`
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1 text-xs font-bold",
+    style: {
+      color: theme.sub
+    }
+  }, /*#__PURE__*/React.createElement(Building2, {
+    size: 14,
+    color: theme.accent
+  }), "設計する階"), Array.from({
+    length: floorCount
+  }).map((_, i) => {
+    const f = i + 1,
+      a = metrics.floorArea[f] || 0;
+    return /*#__PURE__*/React.createElement("button", {
+      key: f,
+      onClick: () => switchFloor(f),
+      className: "text-xs px-3 py-1.5 rounded-lg transition-transform hover:scale-105",
+      style: currentFloor === f ? {
+        background: theme.buttonGrad,
+        color: "#fff",
+        fontWeight: 700
+      } : {
+        background: hexA(theme.faint, 0.16),
+        color: theme.sub,
+        border: `1px solid ${theme.panelBd}`
+      }
+    }, f, "F ", /*#__PURE__*/React.createElement("span", {
+      style: {
+        opacity: 0.85
+      }
+    }, a.toFixed(1), "㎡"));
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1 ml-1"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => changeFloors(floorCount - 1),
+    style: stepBtn,
+    title: "階を減らす"
+  }, /*#__PURE__*/React.createElement(Minus, {
+    size: 13
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs",
+    style: {
+      color: theme.faint
+    }
+  }, "階数 ", floorCount), /*#__PURE__*/React.createElement("button", {
+    onClick: () => changeFloors(floorCount + 1),
+    style: stepBtn,
+    title: "階を増やす"
+  }, /*#__PURE__*/React.createElement(Plus, {
+    size: 13
+  }))), currentFloor > 1 && /*#__PURE__*/React.createElement("label", {
+    className: "flex items-center gap-1.5 text-xs ml-auto cursor-pointer",
+    style: {
+      color: theme.sub
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: showBelow,
+    onChange: e => setShowBelow(e.target.checked),
+    style: {
+      accentColor: theme.accent
+    }
+  }), "下階(", currentFloor - 1, "F)透過")), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center justify-between gap-2 mb-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: loadSample,
+    className: "flex items-center gap-1.5 text-xs px-2.5 py-2 rounded-lg transition-transform hover:scale-105",
+    style: {
+      background: hexA(theme.accent, 0.16),
+      color: theme.accent,
+      border: `1px solid ${hexA(theme.accent, 0.4)}`
+    }
+  }, /*#__PURE__*/React.createElement(LayoutGrid, {
+    size: 14
+  }), "サンプル"), /*#__PURE__*/React.createElement("button", {
+    onClick: clearAll,
+    className: "flex items-center gap-1.5 text-xs px-2.5 py-2 rounded-lg transition-transform hover:scale-105",
+    style: {
+      background: hexA(theme.faint, 0.18),
+      color: theme.sub,
+      border: `1px solid ${theme.panelBd}`
+    }
+  }, /*#__PURE__*/React.createElement(Trash2, {
+    size: 14
+  }), "全消去"), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1 p-0.5 rounded-lg",
+    style: {
+      background: hexA(theme.faint, 0.16),
+      border: `1px solid ${theme.panelBd}`
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setEditMode("select"),
+    className: "flex items-center gap-1 text-xs px-2 py-1.5 rounded-md",
+    style: editMode === "select" ? {
+      background: theme.buttonGrad,
+      color: "#fff",
+      fontWeight: 700
+    } : {
+      color: theme.sub
+    }
+  }, /*#__PURE__*/React.createElement(MousePointer2, {
+    size: 13
+  }), "選択"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setEditMode("addvertex"),
+    className: "flex items-center gap-1 text-xs px-2 py-1.5 rounded-md",
+    style: editMode === "addvertex" ? {
+      background: theme.buttonGrad,
+      color: "#fff",
+      fontWeight: 700
+    } : {
+      color: theme.sub
+    }
+  }, /*#__PURE__*/React.createElement(Spline, {
+    size: 13
+  }), "頂点追加"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setEditMode("curve"),
+    className: "flex items-center gap-1 text-xs px-2 py-1.5 rounded-md",
+    style: editMode === "curve" ? {
+      background: theme.buttonGrad,
+      color: "#fff",
+      fontWeight: 700
+    } : {
+      color: theme.sub
+    },
+    title: "辺をクリックで外側へ曲線変形"
+  }, /*#__PURE__*/React.createElement(Spline, {
+    size: 13
+  }), "曲線"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setPushMode(v => !v),
+    className: "flex items-center gap-1 text-xs px-2 py-1.5 rounded-md",
+    style: pushMode ? {
+      background: theme.buttonGrad,
+      color: "#fff",
+      fontWeight: 700
+    } : {
+      color: theme.sub
+    },
+    title: "重なり時に動かした側を優先し、相手を変形させる"
+  }, /*#__PURE__*/React.createElement(Package, {
+    size: 13
+  }), "重なり変形"))), selected ? /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 text-xs px-2 py-1.5 rounded-lg",
+    style: {
+      background: hexA(colors[selected.type], 0.15),
+      border: `1px solid ${hexA(colors[selected.type], 0.5)}`
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: theme.ink
+    },
+    className: "font-bold"
+  }, ROOM[selected.type].label), [0, 1, 2].map(v => /*#__PURE__*/React.createElement("button", {
+    key: v,
+    onClick: () => setFurn(selected, v),
+    className: "px-1.5 py-1 rounded-md text-xs transition-transform hover:scale-110",
+    style: (selected.furnVariant || 0) === v ? {
+      background: theme.buttonGrad,
+      color: "#fff",
+      fontWeight: 700
+    } : {
+      background: hexA(theme.faint, 0.18),
+      color: theme.sub
+    },
+    title: "家具レイアウト"
+  }, "家", v + 1)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => rotate(selected),
+    className: "flex items-center px-1.5 py-1 rounded-md transition-transform hover:scale-110",
+    style: {
+      background: hexA(theme.accent, 0.18),
+      color: theme.accent
+    },
+    title: "90°回転"
+  }, /*#__PURE__*/React.createElement(RotateCw, {
+    size: 13
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => resetShape(selected),
+    className: "flex items-center px-1.5 py-1 rounded-md transition-transform hover:scale-110",
+    style: {
+      background: hexA(theme.sub, 0.18),
+      color: theme.sub
+    },
+    title: "矩形に戻す"
+  }, /*#__PURE__*/React.createElement(LayoutGrid, {
+    size: 13
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => del(selected.id),
+    className: "flex items-center px-1.5 py-1 rounded-md transition-transform hover:scale-110",
+    style: {
+      background: hexA(theme.warn, 0.18),
+      color: theme.warn
+    },
+    title: "削除"
+  }, /*#__PURE__*/React.createElement(Trash2, {
+    size: 13
+  }))) : /*#__PURE__*/React.createElement("span", {
+    className: "text-xs",
+    style: {
+      color: theme.faint
+    }
+  }, "1マス＝910mm／太線＝1間")), /*#__PURE__*/React.createElement("div", {
+    className: "relative",
+    style: {
+      width: COLS * CELL,
+      maxWidth: "100%",
+      margin: "0 auto"
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    ref: canvasRef,
+    width: COLS * CELL,
+    height: ROWS * CELL,
+    viewBox: `0 0 ${COLS * CELL} ${ROWS * CELL}`,
+    style: {
+      width: COLS * CELL,
+      maxWidth: "100%",
+      height: "auto",
+      background: theme.canvasBg,
+      borderRadius: 12,
+      border: `1px solid ${theme.panelBd}`,
+      touchAction: "none",
+      display: "block",
+      margin: "0 auto"
+    },
+    onPointerDown: () => setSelectedId(null)
+  }, Array.from({
+    length: COLS + 1
+  }).map((_, i) => /*#__PURE__*/React.createElement("line", {
+    key: "v" + i,
+    x1: i * CELL,
+    y1: 0,
+    x2: i * CELL,
+    y2: ROWS * CELL,
+    stroke: i % 2 === 0 ? theme.gridB : theme.gridA,
+    strokeWidth: i % 2 === 0 ? 1 : 0.6
+  })), Array.from({
+    length: ROWS + 1
+  }).map((_, j) => /*#__PURE__*/React.createElement("line", {
+    key: "h" + j,
+    x1: 0,
+    y1: j * CELL,
+    x2: COLS * CELL,
+    y2: j * CELL,
+    stroke: j % 2 === 0 ? theme.gridB : theme.gridA,
+    strokeWidth: j % 2 === 0 ? 1 : 0.6
+  })), belowRooms.map(r => /*#__PURE__*/React.createElement("polygon", {
+    key: "g" + r.id,
+    points: polyPoints(r.poly),
+    fill: hexA(colors[r.type], 0.07),
+    stroke: hexA(colors[r.type], 0.5),
+    strokeWidth: "1",
+    strokeDasharray: "4 3"
+  })), currentRooms.map(r => {
+    const isDragged = drag && drag.roomId === r.id && drag.poly;
+    const poly = isDragged ? drag.poly : r.poly,
+      base = colors[r.type],
+      bad = isDragged && !drag.valid && !drag.canPush,
+      push = isDragged && drag.canPush;
+    return /*#__PURE__*/React.createElement("polygon", {
+      key: r.id,
+      points: polyPoints(poly),
+      onPointerDown: e => startMove(e, r),
+      fill: isOpen(r.type) ? hexA(base, 0.14) : fillFor(base),
+      stroke: bad ? theme.warn : push ? theme.accent : base,
+      strokeWidth: selectedId === r.id ? 2.5 : 1.5,
+      strokeDasharray: isOpen(r.type) ? "5 3" : "0",
+      style: {
+        cursor: "grab",
+        touchAction: "none",
+        filter: theme.roomStyle === "candy" && !isOpen(r.type) ? "drop-shadow(0 4px 4px rgba(0,0,0,0.18))" : "none"
+      }
+    });
+  }), columnsFor(rooms, currentFloor, structure).map((p, ci) => {
+    const hw = Math.max(2.5, STRUCT[structure].post * CELL / 2);
+    return /*#__PURE__*/React.createElement("rect", {
+      key: "col" + ci,
+      x: p[0] * CELL - hw,
+      y: p[1] * CELL - hw,
+      width: hw * 2,
+      height: hw * 2,
+      rx: 1,
+      fill: STRUCT[structure].postCol,
+      stroke: "rgba(0,0,0,0.45)",
+      strokeWidth: "0.6"
+    });
+  }), drag && drag.kind === "new" && drag.poly && /*#__PURE__*/React.createElement("polygon", {
+    points: polyPoints(drag.poly),
+    fill: hexA(drag.valid ? theme.ok : drag.canPush ? theme.accent : theme.warn, 0.22),
+    stroke: drag.valid ? theme.ok : drag.canPush ? theme.accent : theme.warn,
+    strokeWidth: "2",
+    strokeDasharray: "5 3"
+  }), selected && handlePoly && handlePoly.map((p, idx) => {
+    const q = handlePoly[(idx + 1) % handlePoly.length],
+      mx = (p[0] + q[0]) / 2 * CELL,
+      my = (p[1] + q[1]) / 2 * CELL;
+    return /*#__PURE__*/React.createElement("rect", {
+      key: "e" + idx,
+      x: mx - 5,
+      y: my - 5,
+      width: 10,
+      height: 10,
+      rx: 2,
+      onPointerDown: e => onEdge(e, selected, idx),
+      fill: editMode === "addvertex" ? theme.accent : editMode === "curve" ? theme.ok : "#fff",
+      stroke: editMode === "curve" ? theme.ok : theme.accent,
+      strokeWidth: "1.5",
+      style: {
+        cursor: editMode === "addvertex" ? "copy" : editMode === "curve" ? "pointer" : "move",
+        touchAction: "none"
+      }
+    });
+  }), selected && handlePoly && handlePoly.map((p, idx) => /*#__PURE__*/React.createElement("circle", {
+    key: "v" + idx,
+    cx: p[0] * CELL,
+    cy: p[1] * CELL,
+    r: 5.5,
+    onPointerDown: e => startVertex(e, selected, idx),
+    fill: "#fff",
+    stroke: theme.accent,
+    strokeWidth: "2",
+    style: {
+      cursor: "grab",
+      touchAction: "none"
+    }
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "absolute inset-0 pointer-events-none",
+    style: {
+      width: COLS * CELL,
+      height: ROWS * CELL,
+      maxWidth: "100%"
+    }
+  }, currentRooms.map(r => {
+    const isDragged = drag && drag.roomId === r.id && drag.poly;
+    const poly = isDragged ? drag.poly : r.poly,
+      cells = polyCells(poly);
+    if (!cells.length) return null;
+    const [cxp, cyp] = centroid(cells),
+      Icon = ROOM[r.type].icon,
+      big = cells.length >= 4,
+      txt = theme.roomStyle === "washi" ? "#fbf7ee" : "#fff";
+    return /*#__PURE__*/React.createElement("div", {
+      key: "l" + r.id,
+      className: "absolute flex flex-col items-center",
+      style: {
+        left: cxp,
+        top: cyp,
+        transform: "translate(-50%,-50%)"
+      }
+    }, /*#__PURE__*/React.createElement(Icon, {
+      size: big ? 20 : 14,
+      color: isOpen(r.type) ? colors[r.type] : txt
+    }), big && /*#__PURE__*/React.createElement("span", {
+      className: "text-xs font-bold",
+      style: {
+        color: isOpen(r.type) ? colors[r.type] : txt
+      }
+    }, ROOM[r.type].label), big && /*#__PURE__*/React.createElement("span", {
+      className: "text-xs",
+      style: {
+        color: isOpen(r.type) ? colors[r.type] : txt,
+        opacity: 0.85
+      }
+    }, (cells.length * CELL_M2).toFixed(1), "㎡"), metrics.lightWarn.includes(r.id) && /*#__PURE__*/React.createElement("span", {
+      className: "flex items-center justify-center",
+      style: {
+        position: "absolute",
+        top: -16,
+        right: -16,
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        background: theme.warn
+      }
+    }, /*#__PURE__*/React.createElement(AlertTriangle, {
+      size: 11,
+      color: "#fff"
+    })));
+  }), currentRooms.length === 0 && !drag && /*#__PURE__*/React.createElement("div", {
+    className: "absolute inset-0 flex flex-col items-center justify-center",
+    style: {
+      color: theme.faint
+    }
+  }, /*#__PURE__*/React.createElement(LayoutGrid, {
+    size: 30
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm mt-2"
+  }, currentFloor, "F：左のブロックをドラッグ"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs mt-1"
+  }, "頂点○・辺□で自由に変形"))), selected && /*#__PURE__*/React.createElement("p", {
+    className: "text-xs mt-1.5 text-center",
+    style: {
+      color: theme.faint
+    }
+  }, "○頂点・辺□をドラッグで変形／「頂点追加」で□クリックで切欠き")), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3",
+    style: {
+      ...panel,
+      padding: 12
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center justify-between gap-2 mb-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement(Maximize2, {
+    size: 16,
+    color: theme.accent
+  }), /*#__PURE__*/React.createElement("h2", {
+    className: "text-sm font-bold",
+    style: {
+      color: theme.ink
+    }
+  }, "AIパース"), ai === "done" && /*#__PURE__*/React.createElement("span", {
+    className: "text-xs",
+    style: {
+      color: theme.faint
+    }
+  }, viewMode === "ext" ? "外装" : "内観", dz ? "・" + DESIGN[design].name : "・標準")), ai === "done" && /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center gap-1"
+  }, ["ext"].concat(Array.from({
+    length: floorCount
+  }, (_, i) => "f" + (i + 1))).map(k => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    onClick: () => setViewMode(k),
+    className: "text-xs px-2.5 py-1 rounded-md transition-transform hover:scale-105",
+    style: viewMode === k ? {
+      background: theme.buttonGrad,
+      color: "#fff",
+      fontWeight: 700
+    } : {
+      background: hexA(theme.faint, 0.16),
+      color: theme.sub
+    }
+  }, k === "ext" ? "外装" : k.slice(1) + "階")), /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 1,
+      height: 16,
+      background: theme.panelBd,
+      margin: "0 3px"
+    }
+  }), /*#__PURE__*/React.createElement(Eye, {
+    size: 13,
+    color: theme.accent
+  }), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setViewRot(v => v + 1),
+    style: stepBtn,
+    title: "視点回転"
+  }, /*#__PURE__*/React.createElement(RotateCw, {
+    size: 13
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setViewRot(v => v - 1),
+    style: stepBtn,
+    title: "逆回転"
+  }, /*#__PURE__*/React.createElement(RotateCcw, {
+    size: 13
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setZoom(z => Math.max(0.6, +(z - 0.2).toFixed(2))),
+    style: stepBtn,
+    title: "縮小"
+  }, /*#__PURE__*/React.createElement(ZoomOut, {
+    size: 13
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setZoom(z => Math.min(1.8, +(z + 0.2).toFixed(2))),
+    style: stepBtn,
+    title: "拡大"
+  }, /*#__PURE__*/React.createElement(ZoomIn, {
+    size: 13
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setTopView(v => !v),
+    className: "text-xs px-2 py-0.5 rounded-md",
+    style: topView ? {
+      background: theme.buttonGrad,
+      color: "#fff",
+      fontWeight: 700
+    } : {
+      background: hexA(theme.faint, 0.16),
+      color: theme.sub
+    },
+    title: "真上からの視点"
+  }, "真上"))), ai === "done" && /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center gap-3 mb-2 p-2 rounded-lg",
+    style: {
+      background: hexA(theme.faint, 0.10)
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement(Sun, {
+    size: 13,
+    color: theme.accent
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs",
+    style: {
+      color: theme.sub
+    }
+  }, "時刻"), /*#__PURE__*/React.createElement("input", {
+    type: "range",
+    min: "0",
+    max: "100",
+    value: sunTime,
+    onChange: e => setSunTime(+e.target.value),
+    style: {
+      width: 92,
+      accentColor: theme.accent
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs",
+    style: {
+      color: theme.faint,
+      width: 30
+    }
+  }, sunTime < 24 ? "朝" : sunTime < 45 ? "午前" : sunTime < 58 ? "正午" : sunTime < 78 ? "午後" : "夕")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs",
+    style: {
+      color: theme.faint
+    }
+  }, "地面"), [["grass", "芝"], ["concrete", "ｺﾝｸﾘ"], ["gravel", "砂利"]].map(([id, lb]) => /*#__PURE__*/React.createElement("button", {
+    key: id,
+    onClick: () => setGround(id),
+    className: "text-xs px-2 py-0.5 rounded-md transition-transform hover:scale-105",
+    style: ground === id ? {
+      background: theme.buttonGrad,
+      color: "#fff",
+      fontWeight: 700
+    } : {
+      background: hexA(theme.faint, 0.16),
+      color: theme.sub
+    }
+  }, lb))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSoftShadow(v => !v),
+    className: "text-xs px-2 py-0.5 rounded-md transition-transform hover:scale-105",
+    style: softShadow ? {
+      background: theme.buttonGrad,
+      color: "#fff",
+      fontWeight: 700
+    } : {
+      background: hexA(theme.faint, 0.16),
+      color: theme.sub
+    }
+  }, "影やわらか")), ai === "done" && /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center gap-2 mb-2 p-2 rounded-lg",
+    style: {
+      background: hexA(theme.faint, 0.10)
+    }
+  }, /*#__PURE__*/React.createElement(Palette, {
+    size: 13,
+    color: theme.accent
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs",
+    style: {
+      color: theme.sub
+    }
+  }, "内外装"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setDesign(architect),
+    className: "text-xs px-2.5 py-1 rounded-md transition-transform hover:scale-105",
+    style: design === architect ? {
+      background: theme.buttonGrad,
+      color: "#fff",
+      fontWeight: 700
+    } : {
+      background: hexA(theme.accent, 0.14),
+      color: theme.accent
+    }
+  }, "「", archLabel, "」でデザイン"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setDesign(null),
+    className: "text-xs px-2.5 py-1 rounded-md",
+    style: !design ? {
+      background: theme.buttonGrad,
+      color: "#fff",
+      fontWeight: 700
+    } : {
+      background: hexA(theme.faint, 0.16),
+      color: theme.sub
+    }
+  }, "標準"), archMat && /*#__PURE__*/React.createElement("div", {
+    className: "w-full mt-1.5"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs mb-1",
+    style: {
+      color: theme.faint
+    }
+  }, "素材・建具を", archLabel, "の思想の範囲内で選択："), /*#__PURE__*/React.createElement(MatRow, {
+    label: "屋根",
+    opts: archMat.roofs,
+    sel: selRoof,
+    set: setSelRoof
+  }), /*#__PURE__*/React.createElement(MatRow, {
+    label: "外壁",
+    opts: archMat.walls,
+    sel: selWall,
+    set: setSelWall
+  }), /*#__PURE__*/React.createElement(MatRow, {
+    label: "内壁",
+    opts: archMat.inters,
+    sel: selInt,
+    set: setSelInt
+  }), /*#__PURE__*/React.createElement(MatRow, {
+    label: "建具",
+    opts: archMat.glaz,
+    sel: selGlz,
+    set: setSelGlz
+  }))), ai === "idle" && /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center justify-center text-center",
+    style: {
+      minHeight: 200,
+      color: theme.faint,
+      border: `1px dashed ${theme.panelBd}`,
+      borderRadius: 12,
+      background: theme.sky
+    }
+  }, /*#__PURE__*/React.createElement(Sparkles, {
+    size: 28,
+    color: theme.accent
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm mt-2",
+    style: {
+      color: theme.sub
+    }
+  }, "右の「AIでパースを生成」を押すと"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs"
+  }, "ここに外壁・屋根・内装の3Dパースを大きく表示します")), ai === "loading" && /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center justify-center",
+    style: {
+      minHeight: 200,
+      borderRadius: 12,
+      background: theme.sky,
+      border: `1px solid ${theme.panelBd}`
+    }
+  }, /*#__PURE__*/React.createElement(Loader2, {
+    size: 28,
+    className: "animate-spin",
+    color: theme.accent
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs mt-2",
+    style: {
+      color: theme.sub
+    }
+  }, AI_STEPS[aiStep]), /*#__PURE__*/React.createElement("div", {
+    className: "overflow-hidden mt-2",
+    style: {
+      width: 220,
+      height: 6,
+      borderRadius: 6,
+      background: hexA(theme.faint, 0.25)
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: `${(aiStep + 1) / AI_STEPS.length * 100}%`,
+      height: "100%",
+      background: theme.buttonGrad,
+      transition: "width .4s ease"
+    }
+  }))), ai === "done" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-xl",
+    style: {
+      background: theme.sky,
+      border: `1px solid ${theme.panelBd}`,
+      padding: 10
+    }
+  }, /*#__PURE__*/React.createElement(Three3D, {
+    rooms: rooms,
+    floorCount: floorCount,
+    mode: viewMode !== "ext" && parseInt(viewMode.slice(1), 10) > floorCount ? "ext" : viewMode,
+    colors: colors,
+    theme: theme,
+    design: dz,
+    structure: structure,
+    topView: topView,
+    sunTime: sunTime,
+    ground: ground,
+    softShadow: softShadow
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap gap-3 mt-2 mb-2 text-xs",
+    style: {
+      color: theme.faint
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1"
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 11,
+      height: 11,
+      borderRadius: 2,
+      background: dz ? dz.wall : theme.wall,
+      display: "inline-block"
+    }
+  }), "外壁"), /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1"
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 11,
+      height: 11,
+      borderRadius: 2,
+      background: dz ? dz.roofCol : theme.roof,
+      display: "inline-block"
+    }
+  }), "屋根"), /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1"
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 11,
+      height: 11,
+      borderRadius: 2,
+      background: dz ? dz.glassCol : theme.glassCol,
+      display: "inline-block"
+    }
+  }), "開口"), /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1"
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 11,
+      height: 11,
+      borderRadius: 2,
+      background: hexA(colors.living, 0.7),
+      display: "inline-block"
+    }
+  }), "床・家具"), /*#__PURE__*/React.createElement("span", null, "｜視点", ["南East", "東North", "北West", "西South"][(viewRot % 4 + 4) % 4], "・", (zoom * 100).toFixed(0), "%")), /*#__PURE__*/React.createElement("div", {
+    className: "p-3 rounded-xl",
+    style: {
+      background: hexA(theme.accent, 0.07),
+      border: `1px solid ${hexA(theme.accent, 0.3)}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 mb-1.5"
+  }, /*#__PURE__*/React.createElement(ScrollText, {
+    size: 15,
+    color: theme.accent
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm font-bold",
+    style: {
+      color: theme.ink
+    }
+  }, crit.name), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs px-1.5 py-0.5 rounded",
+    style: {
+      background: hexA(theme.accent, 0.15),
+      color: theme.accent
+    }
+  }, crit.school)), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs leading-relaxed",
+    style: {
+      color: theme.sub
+    }
+  }, crit.text), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs mt-2",
+    style: {
+      color: theme.faint
+    }
+  }, "※ ", crit.years, "｜実在人物の発言ではなく公知の設計思想・作風をAIが模した創作です。"))))), /*#__PURE__*/React.createElement("div", {
+    className: "w-full lg:w-80 flex flex-col gap-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...panel,
+      padding: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 mb-3"
+  }, /*#__PURE__*/React.createElement(Ruler, {
+    size: 16,
+    color: theme.accent
+  }), /*#__PURE__*/React.createElement("h2", {
+    className: "text-sm font-bold",
+    style: {
+      color: theme.ink
+    }
+  }, "敷地条件（仮想）")), [{
+    label: "敷地面積",
+    val: siteArea,
+    set: setSiteArea,
+    min: 50,
+    max: 200,
+    step: 5,
+    unit: "㎡"
+  }, {
+    label: "建蔽率 上限",
+    val: coverageMax,
+    set: setCoverageMax,
+    min: 30,
+    max: 80,
+    step: 5,
+    unit: "％"
+  }, {
+    label: "容積率 上限",
+    val: farMax,
+    set: setFarMax,
+    min: 50,
+    max: 300,
+    step: 10,
+    unit: "％"
+  }].map(s => /*#__PURE__*/React.createElement("div", {
+    key: s.label,
+    className: "mb-2.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between mb-1"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs",
+    style: {
+      color: theme.sub
+    }
+  }, s.label), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm font-bold",
+    style: {
+      color: theme.ink
+    }
+  }, s.val, s.unit)), /*#__PURE__*/React.createElement("input", {
+    type: "range",
+    min: s.min,
+    max: s.max,
+    step: s.step,
+    value: s.val,
+    onChange: e => s.set(Number(e.target.value)),
+    className: "w-full",
+    style: {
+      accentColor: theme.accent
+    }
+  })))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...panel,
+      padding: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 mb-3"
+  }, /*#__PURE__*/React.createElement(Building2, {
+    size: 16,
+    color: theme.accent
+  }), /*#__PURE__*/React.createElement("h2", {
+    className: "text-sm font-bold",
+    style: {
+      color: theme.ink
+    }
+  }, "リアルタイム法規チェック")), /*#__PURE__*/React.createElement("div", {
+    className: "mb-3 p-2 rounded-lg",
+    style: {
+      background: hexA(theme.faint, 0.10)
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center gap-1 mb-1"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-bold",
+    style: {
+      color: theme.sub
+    }
+  }, "構造"), Object.values(STRUCT).map(st => /*#__PURE__*/React.createElement("button", {
+    key: st.key,
+    onClick: () => setStructure(st.key),
+    className: "text-xs px-2 py-0.5 rounded-md transition-transform hover:scale-105",
+    style: structure === st.key ? {
+      background: theme.buttonGrad,
+      color: "#fff",
+      fontWeight: 700
+    } : {
+      background: hexA(theme.faint, 0.16),
+      color: theme.sub
+    }
+  }, st.label))), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs",
+    style: {
+      color: theme.faint
+    }
+  }, STRUCT[structure].note, "｜柱", STRUCT[structure].col, "・梁", STRUCT[structure].beam, "｜柱", columnsFor(rooms, currentFloor, structure).length, "本(現階)"), (() => {
+    const spanM = STRUCT[structure].span * 0.91;
+    let md = 0;
+    for (const r of rooms) {
+      const [a, bb, c, d] = polyBounds(r.poly);
+      md = Math.max(md, (c - a) * 0.91, (d - bb) * 0.91);
+    }
+    return md > spanM + 0.01 ? /*#__PURE__*/React.createElement("p", {
+      className: "text-xs font-bold",
+      style: {
+        color: theme.warn
+      }
+    }, "無柱", md.toFixed(1), "mのスパンが", STRUCT[structure].label, "の目安", spanM.toFixed(1), "mを超過（梁の大型化や中柱が必要）") : /*#__PURE__*/React.createElement("p", {
+      className: "text-xs",
+      style: {
+        color: theme.ok
+      }
+    }, "主要スパンは", STRUCT[structure].label, "の目安内");
+  })()), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-2 mb-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "p-2 rounded-lg text-center",
+    style: {
+      background: hexA(theme.faint, 0.14)
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-xs",
+    style: {
+      color: theme.faint
+    }
+  }, "建築面積"), /*#__PURE__*/React.createElement("div", {
+    className: "text-lg font-bold",
+    style: {
+      color: theme.ink
+    }
+  }, metrics.buildArea.toFixed(1), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs"
+  }, "㎡")), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs",
+    style: {
+      color: theme.sub
+    }
+  }, metrics.tsubo.toFixed(1), " 坪")), /*#__PURE__*/React.createElement("div", {
+    className: "p-2 rounded-lg text-center",
+    style: {
+      background: hexA(theme.faint, 0.14)
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-xs",
+    style: {
+      color: theme.faint
+    }
+  }, "延べ面積（全", floorCount, "階）"), /*#__PURE__*/React.createElement("div", {
+    className: "text-lg font-bold",
+    style: {
+      color: theme.ink
+    }
+  }, metrics.grossArea.toFixed(1), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs"
+  }, "㎡")), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs",
+    style: {
+      color: theme.sub
+    }
+  }, "居室 ", metrics.habitable, " 室"))), metrics.balconyArea > 0 && /*#__PURE__*/React.createElement("p", {
+    className: "text-xs mb-2 px-1",
+    style: {
+      color: theme.sub
+    }
+  }, "ベランダ ", metrics.balconyArea.toFixed(1), "㎡：突出1m以内 ", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: theme.ok
+    }
+  }, metrics.exemptArea.toFixed(1), "㎡を建築面積から不算入"), "（令2条1項二号）", metrics.countedBalcony > 0 ? `／2m目以降 ${(metrics.countedBalcony * CELL_M2).toFixed(1)}㎡は算入` : ""), /*#__PURE__*/React.createElement(Meter, {
+    label: "建蔽率",
+    law: "53条",
+    value: metrics.cov,
+    limit: coverageMax,
+    unit: "％",
+    color: theme.ok
+  }), /*#__PURE__*/React.createElement(Meter, {
+    label: "容積率",
+    law: "52条",
+    value: metrics.far,
+    limit: farMax,
+    unit: "％",
+    color: theme.accent
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between mt-2 mb-3 p-2 rounded-lg",
+    style: {
+      background: hexA(metrics.lightWarn.length ? theme.warn : theme.ok, 0.14)
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1.5 text-xs",
+    style: {
+      color: theme.sub
+    }
+  }, /*#__PURE__*/React.createElement(Sun, {
+    size: 14,
+    color: metrics.lightWarn.length ? theme.warn : theme.ok
+  }), "採光（28条）"), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-bold",
+    style: {
+      color: metrics.lightWarn.length ? theme.warn : theme.ok
+    }
+  }, metrics.habitable === 0 ? "居室なし" : metrics.lightWarn.length ? `${metrics.lightWarn.length}室 採光不足` : "全居室OK")), rooms.length === 0 ? /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-center py-2",
+    style: {
+      color: theme.faint
+    }
+  }, "部屋を配置すると判定が表示されます") : violations.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 p-2.5 rounded-lg",
+    style: {
+      background: hexA(theme.ok, 0.15),
+      border: `1px solid ${hexA(theme.ok, 0.5)}`
+    }
+  }, /*#__PURE__*/React.createElement(CheckCircle2, {
+    size: 18,
+    color: theme.ok
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-bold",
+    style: {
+      color: theme.ok
+    }
+  }, "適合：現在の条件をすべて満たしています")) : /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col gap-2"
+  }, violations.map((v, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: "p-2.5 rounded-lg animate-pulse",
+    style: {
+      background: hexA(theme.warn, 0.13),
+      border: `1px solid ${hexA(theme.warn, 0.5)}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 mb-0.5"
+  }, /*#__PURE__*/React.createElement(AlertTriangle, {
+    size: 14,
+    color: theme.warn
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-bold",
+    style: {
+      color: theme.warn
+    }
+  }, v.k), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs",
+    style: {
+      color: theme.faint
+    }
+  }, "· ", v.law)), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs leading-relaxed",
+    style: {
+      color: theme.sub
+    }
+  }, v.detail))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...panel,
+      padding: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 mb-2"
+  }, /*#__PURE__*/React.createElement(Sparkles, {
+    size: 16,
+    color: theme.accent
+  }), /*#__PURE__*/React.createElement("h2", {
+    className: "text-sm font-bold",
+    style: {
+      color: theme.ink
+    }
+  }, "建築家AIスタジオ")), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs mb-2",
+    style: {
+      color: theme.faint
+    }
+  }, "建築家(6名)を選び ①間取り補正（理由つき）／②パース・内外装"), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap gap-1 mb-3"
+  }, ARCHITECTS.map(a => /*#__PURE__*/React.createElement("button", {
+    key: a.key,
+    onClick: () => setArchitect(a.key),
+    className: "text-xs px-2.5 py-1 rounded-full transition-transform hover:scale-105",
+    style: architect === a.key ? {
+      background: theme.buttonGrad,
+      color: "#fff",
+      fontWeight: 700
+    } : {
+      background: hexA(theme.faint, 0.16),
+      color: theme.sub
+    }
+  }, a.label))), /*#__PURE__*/React.createElement("div", {
+    className: "p-2.5 rounded-xl mb-3",
+    style: {
+      background: hexA(theme.accent, 0.06),
+      border: `1px solid ${hexA(theme.accent, 0.25)}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-xs font-bold mb-1.5",
+    style: {
+      color: theme.sub
+    }
+  }, "① 思想で間取りを補正"), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => applyPlan(architect),
+    disabled: rooms.length === 0,
+    className: "flex-1 flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-lg transition-transform hover:scale-[1.02] active:scale-95",
+    style: {
+      background: rooms.length === 0 ? hexA(theme.faint, 0.25) : theme.buttonGrad,
+      color: "#fff",
+      cursor: rooms.length === 0 ? "not-allowed" : "pointer"
+    }
+  }, /*#__PURE__*/React.createElement(Wand2, {
+    size: 14
+  }), "「", archLabel, "」で修正"), /*#__PURE__*/React.createElement("button", {
+    onClick: undoPlan,
+    disabled: !undoRooms,
+    className: "flex items-center gap-1 text-xs px-2.5 py-2 rounded-lg",
+    style: {
+      background: hexA(theme.faint, 0.16),
+      color: undoRooms ? theme.sub : theme.faint,
+      border: `1px solid ${theme.panelBd}`,
+      cursor: undoRooms ? "pointer" : "not-allowed"
+    }
+  }, /*#__PURE__*/React.createElement(Undo2, {
+    size: 13
+  }), "戻す")), planMsg && /*#__PURE__*/React.createElement("p", {
+    className: "text-xs mt-1.5 font-bold",
+    style: {
+      color: theme.ink
+    }
+  }, planMsg), planReasons.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "mt-1.5 flex flex-col gap-1"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-bold",
+    style: {
+      color: theme.accent
+    }
+  }, "修正理由（", archLabel, "の思想）"), planReasons.map((r, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: "text-xs leading-relaxed flex gap-1",
+    style: {
+      color: theme.sub
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: theme.accent
+    }
+  }, "▸"), /*#__PURE__*/React.createElement("span", null, r))))), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs font-bold mb-1.5",
+    style: {
+      color: theme.sub
+    }
+  }, "② パース＆内外装デザイン"), /*#__PURE__*/React.createElement("button", {
+    onClick: runAI,
+    disabled: rooms.length === 0 || ai === "loading",
+    className: "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold transition-transform hover:scale-[1.02] active:scale-95",
+    style: {
+      background: rooms.length === 0 ? hexA(theme.faint, 0.25) : theme.buttonGrad,
+      color: "#fff",
+      cursor: rooms.length === 0 ? "not-allowed" : "pointer",
+      boxShadow: rooms.length === 0 ? "none" : `0 8px 20px ${hexA(theme.accent, 0.4)}`
+    }
+  }, ai === "loading" ? /*#__PURE__*/React.createElement(Loader2, {
+    size: 18,
+    className: "animate-spin"
+  }) : /*#__PURE__*/React.createElement(Wand2, {
+    size: 18
+  }), ai === "loading" ? "生成中…" : ai === "done" ? "パースを再生成" : "AIでパースを生成"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-center mt-1.5",
+    style: {
+      color: theme.faint
+    }
+  }, rooms.length === 0 ? "※ 部屋を1つ以上配置してください" : "生成後、間取りの下で素材・建具・視点を調整できます")))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-5 p-4 rounded-xl",
+    style: {
+      background: hexA(theme.faint, 0.10),
+      border: `1px solid ${theme.panelBd}`
+    }
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-bold mb-1",
+    style: {
+      color: theme.sub
+    }
+  }, "根拠・出典 / 注意"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs leading-relaxed",
+    style: {
+      color: theme.faint
+    }
+  }, "尺貫法（1間=1,820mm／半間=910mm）。", /*#__PURE__*/React.createElement("b", null, "建蔽率＝水平投影/敷地（建基法53条）。軒・ひさし・ベランダ等は外壁中心線から1m以上突出時のみ先端から1m後退して算定（令2条1項二号）――本ツールは1m≒910mmと近似し「突出1マス以内のベランダは不算入」"), "。", /*#__PURE__*/React.createElement("b", null, "容積率＝各階床面積合算/敷地（52条、ベランダ不算入）"), "、採光（", /*#__PURE__*/React.createElement("b", null, "28条"), "→施行令20条：住宅居室は原則1/7以上）を「各階で居室が外気＝外壁/ベランダ等の開放面に接するか」で簡易判定。 屋根は", /*#__PURE__*/React.createElement("b", null, "各階で上階の無い部分すべてに、建物形状へ追従する寄棟/陸屋根"), "を生成。パースは", /*#__PURE__*/React.createElement("b", null, "室用途別の開口"), "でプランに応答し、", /*#__PURE__*/React.createElement("b", null, "屋根・外壁・内壁の素材（テクスチャ）とファサード建具（窓・扉の種類/位置）を各建築家の思想の範囲内で選択"), "、", /*#__PURE__*/React.createElement("b", null, "視点の回転・ズーム"), "も可能。建築家AIの間取り補正は思想を模した発見的ルール（重なり禁止・敷地内を常時検証）で理由も提示。", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: theme.warn
+    }
+  }, " 本ツールは教育・体験用の簡易シミュレーションで、確認申請・実施設計には専門家の詳細計算が必要です（斜線・採光有効面積の精算・構造・避難等は未実装）。建築家の作風はAIオマージュであり本人の設計・発言ではありません。")))));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(HomeDesignStudio));
+</script></body></html>
